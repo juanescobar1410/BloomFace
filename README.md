@@ -13,15 +13,24 @@ La aplicación de escritorio para Windows permitirá que una persona use la webc
 
 ## Estado del proyecto
 
-El repositorio comienza con la preparación del proyecto. Los cuadernos de los parciales son antecedentes de clasificación, segmentación y generación floral. La primera tarea de la aplicación será comprobar la webcam, el cambio floral con una sonrisa simulada y la pausa durante una transición.
+La versión actual muestra la vista previa de la webcam y la flor a media apertura, con controles de pausa y reanudación. El reconocimiento automático está desactivado.
 
-## Desarrollo
+## Ejecutar en Windows
 
-- **Aplicación local.** Python, PySide6 con Qt Widgets, OpenCV y PyTorch.
-- **Preparación de modelos y flores.** Cuadernos en Colab. La generación floral parte de Stable Diffusion 1.5 con DreamBooth y LoRA ajustado con fotografías propias.
-- **Entrega para Windows.** Se prevé distribuir un ZIP con el ejecutable, la CNN y los recursos necesarios para una sesión local.
+En PowerShell, desde la carpeta del proyecto, con Python 3.12 en `.venv`:
 
-Las decisiones de interacción, la evidencia de los parciales y las tareas pendientes están en [CONTEXTO_BLOOMFACE.md](CONTEXTO_BLOOMFACE.md).
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m bloomface
+```
+
+En la ventana, selecciona **Abrir cámara**. Usa **Pausar** para congelar la vista previa y **Reanudar** para volver al video en vivo. La flor conserva su estado inicial.
+
+## Cuadernillo y modelos guardados
+
+El cuadernillo `notebooks/BloomFace_LibreFace_Clasificacion.ipynb` conserva el entrenamiento y la evaluación de LibreFace. Los archivos de los modelos siguen en `bloomface/models` para el trabajo posterior. La aplicación de escritorio funciona con las dependencias de `requirements.txt`.
+
+La generación floral sigue el Parcial 3 con Stable Diffusion 1.5 y DreamBooth con LoRA. El ZIP y la actualización del ejecutable quedan pendientes. Las decisiones y las métricas están en [CONTEXTO_BLOOMFACE.md](CONTEXTO_BLOOMFACE.md).
 
 ## Trabajo en equipo
 

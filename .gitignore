@@ -25,6 +25,8 @@ Desktop.ini
 
 # Datasets, captures and training artifacts
 /data/
+/bloomface/data/
+/bloomface/models/
 /datasets/
 /capturas/
 /checkpoints/
