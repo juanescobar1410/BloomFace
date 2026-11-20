@@ -13,24 +13,26 @@ La aplicación de escritorio para Windows permitirá que una persona use la webc
 
 ## Estado del proyecto
 
-La versión actual muestra la vista previa de la webcam y la flor a media apertura, con controles de pausa y reanudación. El reconocimiento automático está desactivado.
+La aplicación de Windows usa la CNN del Parcial 2 para confirmar gestos. El generador floral está integrado y queda desactivado por defecto tras dos apagados durante las pruebas de la Radeon. En este modo se puede probar la webcam y el reconocimiento usando CPU.
 
 ## Ejecutar en Windows
 
-En PowerShell, desde la carpeta del proyecto, con Python 3.12 en `.venv`:
+Desde la carpeta del repositorio, con Python 3.12 y un entorno `.venv`:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 .\.venv\Scripts\python.exe -m bloomface
 ```
 
-En la ventana, selecciona **Abrir cámara**. Usa **Pausar** para congelar la vista previa y **Reanudar** para volver al video en vivo. La flor conserva su estado inicial.
+Para iniciar el reconocimiento, coloca `gestos_parcial2.pt`, `preprocesamiento.json` y `haarcascade_frontalface_default.xml` en `bloomface/models`. Git ignora esa carpeta. En la ventana, selecciona **Abrir cámara** y luego **Iniciar reconocimiento**.
 
-## Cuadernillo y modelos guardados
+## Generación floral
 
-El cuadernillo `notebooks/BloomFace_LibreFace_Clasificacion.ipynb` conserva el entrenamiento y la evaluación de LibreFace. Los archivos de los modelos siguen en `bloomface/models` para el trabajo posterior. La aplicación de escritorio funciona con las dependencias de `requirements.txt`.
+El cuaderno `notebooks/BloomFace_Generacion_Floral.ipynb` conserva las cuatro guías y permite probar la generación en Colab. La aplicación solicita una acuarela al confirmar un gesto. El proceso floral usa la guía correspondiente y devuelve la imagen en memoria. Si se pierde el rostro, se pausa o se confirma un gesto más reciente, se descarta la respuesta que haya quedado pendiente.
 
-La generación floral sigue el Parcial 3 con Stable Diffusion 1.5 y DreamBooth con LoRA. El ZIP y la actualización del ejecutable quedan pendientes. Las decisiones y las métricas están en [CONTEXTO_BLOOMFACE.md](CONTEXTO_BLOOMFACE.md).
+Para una futura validación en Windows, el generador requiere un entorno separado con `requirements-floral.txt` y los pesos públicos FP16 de SD 1.5 y ControlNet Scribble, además de LCM-LoRA. Usa `BLOOMFACE_FLORAL_RUNTIME` para señalar una carpeta con `venv/Scripts/python.exe` y pesos locales en `weights/sd15`, `weights/scribble` y `weights/lcm`. Esta versión de DirectML se probó con una RX 6600 XT. El interruptor `BLOOMFACE_ENABLE_LOCAL_GENERATOR=1` habilita el proceso cuando se decida retomar la validación del equipo.
+
+Los resultados y las decisiones están en [CONTEXTO_BLOOMFACE.md](CONTEXTO_BLOOMFACE.md).
 
 ## Trabajo en equipo
 

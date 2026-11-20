@@ -1,2 +1,6 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
 PySide6
 opencv-contrib-python==5.1.0.95
+numpy
+Pillow
+torch==2.15.0+cpu

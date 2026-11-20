@@ -32,7 +32,7 @@ Desde P3 o P4 se puede pasar a **P5 Pausa**. Se congelan la vista de cámara y l
 | **Parcial 3, punto 1** | La U-Net con ResNet18 es una candidata para mejorar el recorte si la ROI guiada resulta insuficiente. Su aporte se debe medir por la conservación de cejas y boca, el rendimiento por gesto y la latencia local. |
 | **Parcial 3, punto 2** | Stable Diffusion 1.5 con DreamBooth y LoRA se ajustó con 20 fotos propias de una flor amarilla. Hay resultados guardados que recuperan rasgos del ejemplar y otros con recortes o cambios de forma. Está pendiente validar un banco de estados compatibles del mismo ejemplar. |
 
-La CNN del Parcial 2 con Haar, gris de 64×64 y StandardScaler documenta el primer prototipo y sus pruebas. El 19 de noviembre de 2026 el equipo decidió sustituir sus pesos en la versión final por una CNN preentrenada de terceros. LibreFace y la CNN anterior quedan como antecedentes. La aplicación de desarrollo se ejecuta sin clasificador activo.
+La CNN del Parcial 2 con Haar, gris de 64×64 y StandardScaler documenta el primer prototipo y sus pruebas. El 19 de noviembre de 2026 el equipo decidió sustituir sus pesos en la versión final por una CNN preentrenada de terceros. LibreFace queda como antecedente. La aplicación de desarrollo usa la CNN propia del Parcial 2 en CPU.
 
 ## Investigación del clasificador preentrenado
 
@@ -61,7 +61,7 @@ La CNN del Parcial 2 con Haar, gris de 64×64 y StandardScaler documenta el prim
 ## Herramientas y entrega de PC
 
 - El entorno local de desarrollo de BloomFace usa Python 3.12 en `.venv`. Se verificó Python 3.12.10 en Windows. El punto de entrada `python -m bloomface` abre la ventana con PySide6. OpenCV se instala con `opencv-contrib-python` junto con MediaPipe y PySide6 presenta la imagen.
-- La aplicación actual usa **Python, PySide6 y OpenCV** para la interfaz, la composición y la vista previa de la webcam. Conserva la pausa y la reanudación. La flor se muestra a media apertura y los modelos permanecen guardados para pruebas posteriores.
+- La aplicación actual usa **Python, PySide6 y OpenCV** para la interfaz, la composición y la vista previa de la webcam. Conserva la pausa y la reanudación. El espacio de composición inicia sin imagen. El reconocimiento se ejecuta en CPU y la generación DirectML queda desactivada por defecto.
 - Preparar un paquete en carpeta con **PyInstaller**, generado en Windows. La entrega propuesta es `BloomFace-Windows.zip` con `BloomFace.exe`, dependencias, modelo, configuración y banco de imágenes. Documentar cómo se reproduce el empaquetado.
 - El criterio de entrega es abrir el ejecutable con doble clic y completar la sesión con webcam, recursos incluidos y sin instalar Python, usar Colab o depender de internet. Validar primero en el equipo objetivo y después en un segundo Windows sin el entorno de desarrollo.
 - La rúbrica también exige código y documentación en GitHub con README, arquitectura, metodología, instrucciones, datos o enlaces autorizados y resultados reproducibles. Los otros entregables son póster académico, video demostrativo de máximo tres minutos y sustentación oral con demostración.
@@ -85,6 +85,42 @@ La CNN del Parcial 2 con Haar, gris de 64×64 y StandardScaler documenta el prim
 
 - El código de inferencia desconectado, el PNG provisional sin referencias, las compilaciones anteriores, la caché y el entorno descartado de Python 3.15 se retiraron de la carpeta de trabajo. El entorno activo usa Python 3.12.
 - Se conservaron los modelos locales fuera de Git, el cuadernillo y las evidencias del piloto. La especificación de PyInstaller sigue disponible para el siguiente empaquetado.
+
+## Investigación de difusión para el banco floral · 20 de noviembre de 2026
+
+El criterio del piloto es obtener las fases cerrada, semiabierta y abierta del mismo ejemplar amarillo, con fondo, encuadre, tallo y hojas estables. El gesto de boca abierta activa una ampliación en la aplicación. Conviene generar y revisar los recursos en un entorno separado y usar los PNG aprobados en Windows.
+
+| Modelo | Evidencia y pertinencia |
+|---|---|
+| SD 1.5 con DreamBooth y LoRA del Parcial 3 | Se localizó el archivo final `entrenamiento_fp16_corregido/pytorch_lora_weights.safetensors` de 3,23 MB en la carpeta local del Parcial 3. El cuaderno documenta el modelo base y el ajuste con las fotos propias. Es el primer candidato para conservar los rasgos de la flor. Falta verificar las tres aperturas en un mismo encuadre. [Modelo base](https://huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5) |
+| Flower BLIP LoRA | El API de Hugging Face confirmó el adaptador `pytorch_lora_weights.safetensors`. La ficha declara 2.000 imágenes florales con descripciones BLIP, 512 × 512 y CreativeML OpenRAIL-M. Es el comparador externo más práctico por usar SD 1.5. La ficha muestra comparaciones visuales y carece de una prueba de las tres fases del mismo ejemplar. [Ficha](https://huggingface.co/imaquantinizer/sd15-flower-blip-lora) |
+| Anthos-1 | El API confirmó `model.safetensors`. La ficha declara 256 × 256, 102 clases Oxford, Apache 2.0 y evaluación visual. La entrada elige una categoría floral. Sirve como referencia de generación especializada. [Ficha](https://huggingface.co/Glint-Research/Anthos-1) |
+| DDPM Flowers 64 y Flower UNet2D | Modelos incondicionales de 64 × 64 y 32 × 32. El DDPM de Anton tiene pesos públicos confirmados y licencia Apache 2.0. Ambos sirven para ilustrar el efecto de entrenar en flores, con escaso control y resolución para el banco visual. [DDPM de Diffusers](https://huggingface.co/docs/diffusers/v0.14.0/en/training/unconditional_training) · [Flower UNet2D](https://huggingface.co/pop123ux/Flower-UNet2D-pipeline) |
+| Floral Diffusion y LoRA de lavanda | Floral Diffusion publica enlaces a un checkpoint de Disco Diffusion y el hash esperado. Usa un cuaderno heredado. La adaptación de lavanda documenta control por etapa y datos de esa especie con FLUX.1 dev. Ambas demuestran especialización floral con poca pertinencia para el ejemplar amarillo. [Floral Diffusion](https://github.com/jags111/floral-diffusion) · [Lavanda](https://huggingface.co/Potiron/lavender-flux) |
+| Dinámica de floración | DynamiCrafter publica pesos y muestra una flor abriéndose a partir de una imagen. Su variante de interpolación recibe dos extremos y los autores reportan 12,8 GB de memoria en su prueba. Free-Bloom presenta floración guiada por texto. Birth and Death of a Rose y Latent State Machines estudian la continuidad 4D del crecimiento. La página de Rose anuncia acceso por solicitud y la de LSM enlaza el artículo sin pesos públicos en la página consultada. [DynamiCrafter](https://github.com/Doubiiu/DynamiCrafter) · [Free-Bloom](https://proceedings.neurips.cc/paper_files/paper/2023/hash/52f050499cf82fa8efb588e263f6f3a7-Abstract.html) · [Rose](https://chen-geng.com/rose4d/) · [LSM](https://yuegao.me/lsm/) |
+
+Primera comparación propuesta en Colab con GPU: SD 1.5 con la foto y la máscara como referencia, el mismo flujo con el LoRA propio y el mismo flujo con Flower BLIP por separado. Usar las mismas semillas y fijar el recorte y las instrucciones de cada fase. Una máscara debe abarcar la corola y el espacio donde crecerá. Si la forma sigue variando, probar una guía de contorno por fase. Verificar que el tallo y el fondo queden fijos al recomponer con la referencia. Evaluar fidelidad del ejemplar, separación de fases, continuidad en la transición y proporción de imágenes aceptadas. Se verificaron las fuentes y el archivo local. La comparación de imágenes está pendiente. [Edición con máscaras](https://huggingface.co/docs/diffusers/using-diffusers/inpaint) · [ControlNet Canny](https://huggingface.co/lllyasviel/control_v11p_sd15_canny)
+
+## Generador floral bajo demanda
+
+- BloomFace generará una acuarela nueva al confirmar cada expresión. El cuaderno usa Stable Diffusion 1.5, ControlNet Scribble y LCM-LoRA con 4 pasos de inferencia. Cerrada corresponde a ceño fruncido, punto medio a reposo, abierta a sonrisa y más abierta a boca abierta.
+- En Colab, el flujo anterior produjo las cuatro aperturas con la semilla 83. La prueba de reintento tomó 5,31 s con el modelo cargado. La primera semilla fue marcada por el filtro y la segunda produjo la flor. La prueba simulada de dos fallos conservó la imagen anterior.
+- El cuaderno limpio está en `notebooks/BloomFace_Generacion_Floral.ipynb`. Conserva las cuatro guías, un reintento máximo y la generación en memoria. El archivo pasó la validación estructural y una ejecución simulada local. Está pendiente repetir la inferencia del cuaderno limpio en Colab y probar el flujo en Windows.
+- En Windows, DirectML ejecutó una prueba sintética FP16 de convolución, residual y proyección matricial en la AMD Radeon RX 6600 XT de 8 GiB. El perfil de ONNX Runtime 1.24.4 registró los dos nodos fusionados en DirectML y los resultados coincidieron con la referencia numérica dentro de la tolerancia. En 30 corridas la mediana fue 0,35 ms y el P95 fue 0,60 ms. La prueba solo mide ese grafo.
+- En Windows se generó una acuarela de punto medio a 512 × 512 con la guía y el prompt del cuaderno, semilla 83 y cuatro pasos LCM. La carga de pesos locales tomó 8,22 s y la generación completa con modelo cargado tomó 12,07 s. Los pesos se cargaron en un entorno de prueba con PyTorch 2.4.1 y DirectML. ControlNet, UNet y VAE usaron la Radeon y el filtro se ejecutó en CPU. La salida mostró pétalos levantados y separados, con aspecto de acuarela. Esta prueba cubrió una imagen y todavía falta medir la latencia desde el gesto en la aplicación.
+
+### BloomFace-prueba-CNN con generación en vivo
+
+- La copia local situada en E:\PDIProyectos\BloomFace-prueba-CNN conecta la CNN propia del Parcial 2 con el generador floral. Al iniciar reconocimiento se carga el generador en un proceso aparte. Cada gesto confirmado solicita una imagen nueva de la etapa correspondiente. La aplicación mantiene la última flor visible y descarta los resultados atrasados al cambiar de gesto, pausar o perder el rostro.
+- La prueba completa con la foto de referencia suministrada al flujo de cámara confirmó boca abierta y mostró una acuarela para la etapa más abierta. El proceso floral tardó 9,7 s en esa solicitud y la vista recibió fotogramas mientras tanto. También se verificaron la pausa, el cierre y la liberación de recursos. La webcam física entregó fotogramas. Los cuatro gestos con un participante quedan pendientes de probar.
+- Para iniciar desde PowerShell, abre la carpeta de la copia de prueba y ejecuta el Python de la carpeta principal con el módulo bloomface. La copia usa los pesos públicos ya descargados en el entorno separado de DirectML.
+
+- Los PNG provisionales de Paint y el código que los cargaba se retiraron de ambas copias. La copia de prueba inicia con un mensaje y muestra una flor cuando llega la primera acuarela generada. El empaquetado deja de incluir la carpeta floral provisional.
+
+### Integración en el repositorio principal
+
+- La CNN del Parcial 2, la confirmación de gestos y el generador bajo demanda se incorporaron al repositorio principal. Las acuarelas se entregan en memoria y los PNG de Paint se retiraron.
+- El generador DirectML queda desactivado por defecto tras dos apagados inesperados en Windows. El modo de prueba normal usa la webcam y la CNN en CPU. La conexión entre gesto y acuarela se verifica con un generador simulado mientras se aclara la estabilidad de la GPU.
 
 ## Fuentes de referencia
 

@@ -5,7 +5,10 @@ a = Analysis(
     ['bloomface/__main__.py'],
     pathex=['.'],
     binaries=[],
-    datas=[('bloomface/assets/flowers', 'bloomface/assets/flowers')],
+    datas=[
+        ('notebooks/BloomFace_Generacion_Floral.ipynb', 'notebooks'),
+        ('bloomface/floral_worker.py', 'bloomface'),
+    ],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
