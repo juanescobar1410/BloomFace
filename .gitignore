@@ -1,0 +1,34 @@
+# Python and local environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# Local settings and credentials
+.env
+.env.*
+!.env.example
+.vscode/
+.idea/
+
+# Builds and generated output
+/build/
+/dist/
+/output/
+/tmp/
+Thumbs.db
+Desktop.ini
+
+# Datasets, captures and training artifacts
+/data/
+/datasets/
+/capturas/
+/checkpoints/
+/runs/
+*.pt
+*.pth
+*.safetensors
