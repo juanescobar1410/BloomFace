@@ -6,16 +6,16 @@ from PySide6.QtCore import QThread, Signal
 from PySide6.QtGui import QImage
 
 from bloomface.inference_worker import run_classifier
+from bloomface.decision import GestureConfirmation, WAITING_FOR_GESTURE, NO_FACE
 
 
 CONFIRMATION_FRAMES = 3
 FRAME_INTERVAL_SECONDS = 0.125
-WAITING_FOR_GESTURE = "waiting"
-NO_FACE = "no_face"
 
 
 class RecognitionThread(QThread):
     update = Signal(str)
+    diagnostic = Signal(object)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -24,6 +24,11 @@ class RecognitionThread(QThread):
         self._latest_frame = None
         self._next_capture = 0.0
         self._stopping = False
+        self._neutral_requested = False
+
+    def calibrate_neutral(self):
+        with self._condition:
+            self._neutral_requested = True
 
     @property
     def stopping(self):
@@ -75,8 +80,7 @@ class RecognitionThread(QThread):
                 return
             if ready != "ready":
                 raise RuntimeError(ready[1])
-            candidate = None
-            repetitions = 0
+            confirmation = GestureConfirmation(CONFIRMATION_FRAMES)
             last_update = WAITING_FOR_GESTURE
             self.update.emit(last_update)
 
@@ -86,25 +90,24 @@ class RecognitionThread(QThread):
                     return
 
                 rgb = frame.convertToFormat(QImage.Format.Format_RGB888)
-                connection.send(
-                    (rgb.width(), rgb.height(), rgb.bytesPerLine(), bytes(rgb.constBits()))
-                )
+                message = (rgb.width(), rgb.height(), rgb.bytesPerLine(), bytes(rgb.constBits()))
+                with self._condition:
+                    if self._neutral_requested:
+                        message = ("calibrate_neutral", message)
+                        self._neutral_requested = False
+                connection.send(message)
                 prediction = self._receive(connection, process)
                 if prediction is None:
                     return
                 if prediction[0] == "error":
                     raise RuntimeError(prediction[1])
-                _, gesture, face_detected = prediction
-                if not face_detected:
-                    candidate = None
-                    repetitions = 0
-                    state = NO_FACE
-                else:
-                    if gesture != candidate:
-                        candidate = gesture
-                        repetitions = 0
-                    repetitions = min(repetitions + 1, CONFIRMATION_FRAMES)
-                    state = gesture if repetitions == CONFIRMATION_FRAMES else WAITING_FOR_GESTURE
+                _, gesture, face_detected, scores, milliseconds, pixels, model_label, metadata = prediction
+                if self.stopping:
+                    return
+                self.diagnostic.emit({"scores": scores, "milliseconds": milliseconds,
+                                      "pixels": pixels, "face_detected": face_detected,
+                                      "model_label": model_label, **metadata})
+                state = confirmation.update(gesture, face_detected)
 
                 if state != last_update:
                     self.update.emit(state)

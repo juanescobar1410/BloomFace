@@ -2,6 +2,12 @@
 
 Documento de referencia para el proyecto final de Procesamiento Digital de Imágenes de la Universidad Autónoma de Occidente. Revisar este archivo al iniciar cada tarea y actualizarlo cuando se apruebe una decisión, se cambie el alcance o se obtenga evidencia nueva. Registrar el resultado y su fuente. Los objetivos y los planes deben conservar su estado hasta que se verifiquen.
 
+## Actualización aprobada — 22 de noviembre de 2026
+
+La rama migra exclusivamente el reconocimiento facial a **MediaPipe Face Landmarker**. Esta decisión sustituye las referencias posteriores a CNN/LibreFace como reconocedores activos; esas secciones permanecen como historial. No se incluye selección de modelos ni reentrenamiento de la CNN. Se mantiene el generador DirectML original, sus prompts, notebook, entorno separado y activación explícita. No se trasladan los cambios de generación CPU de la otra carpeta.
+
+El reconocimiento utiliza RGB, coeficientes de sonrisa/mandíbula/cejas, reglas explícitas y abstención en mezclas, con tres confirmaciones consecutivas y hasta ocho muestras por segundo. El ajuste opcional de reposo guarda 16 muestras válidas; no entrena el modelo. No se afirma precisión de participantes ni validación del ejecutable sin sus pruebas. Detalles y estado: `MEDIAPIPE.md`.
+
 ## Alcance aprobado
 
 - BloomFace es una aplicación de escritorio para PC. El objetivo de producción es Windows. Una persona frente a la webcam del portátil compone una flor con gestos visibles y decide cuándo conservar la vista. La flor ocupa el panel principal y la cámara permite comprobar el encuadre. La etiqueta muestra el gesto confirmado.
@@ -131,3 +137,17 @@ Primera comparación propuesta en Colab con GPU: SD 1.5 con la foto y la máscar
 - `Parcial_1_PDI_Punto_1_16_Variaciones_Aleatorias.ipynb`
 - `Parcial_2_PDI_OrtizEscobarRomero (3).ipynb`
 - `Parcial3-EscobarOrtizRomero 3.ipynb`
+
+### Aplicación directa en la carpeta principal · 22 de noviembre de 2026
+
+- Se aplicó la integración MediaPipe en `C:\Users\juand\OneDrive\Desktop\BloomFace` después de comprobar que Git no mostraba cambios locales pendientes. Se creó el respaldo `C:\Users\juand\OneDrive\Desktop\Trabajo pdi\BloomFace_integracion_respaldos\antes_mediapipe_20261122_170907_809097.zip`. No se hizo commit, push ni cambio de rama.
+- Se preparó `.venv` con Python 3.12 y el bundle facial local. Se unificó OpenCV en `opencv-contrib-python`, requerido por MediaPipe, evitando instalar simultáneamente `opencv-python`.
+- Evidencia local: `preparar_mediapipe.py --check-only` completó carga e inferencia real sin rostro y `pip check` sin dependencias rotas. `python -m unittest discover -s tests -v` pasó las 23 pruebas en el nuevo entorno. `git diff --check` no detectó errores de formato.
+- La comparación con Git confirmó que `camera.py`, `floral.py`, `floral_worker.py`, `requirements-floral.txt` y los notebooks originales permanecen intactos. El generador conserva su configuración desactivada por defecto. No se probó webcam, precisión con participantes ni generación GPU en esta sesión.
+
+
+### Preparación portátil desde el notebook
+
+La primera celda ejecuta preparar_notebook.py con biblioteca estándar, localiza el repositorio sin rutas personales, crea o reutiliza .venv, prepara las dependencias y comprueba el modelo. Un kernel incompatible puede obtener Python 3.12 mediante uv de PyPI, con recursos bajo output. El notebook vuelve a metadata genérica Python 3: no exige el kernel local BloomFace. VS Code sí necesita un kernel funcional para ejecutar la primera celda.
+
+Validación: se ejecutó la primera celda en una copia sin .venv ni modelos, desde Python 3.15.2. Obtuvo CPython 3.12.16 mediante uv, creó .venv, instaló dependencias, descargó el modelo y completó inferencia real sin rostro y pip check. También se ejecutaron todas las celdas con el kernel Jupyter disponible y se verificó el inicio de Qt en modo offscreen, cerrando el proceso de prueba. Pasaron las 23 pruebas de regresión. No se probó webcam ni generación GPU. Los cambios siguen locales, sin commit ni push.

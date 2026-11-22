@@ -1,20 +1,28 @@
 def run_classifier(connection):
-    """Ejecuta la CNN en un proceso local con una entrada y una salida por fotograma."""
+    """Reconocedor seleccionado en un proceso local, sin bloquear Qt."""
+    classifier = None
     try:
-        import torch
         from PIL import Image
-
         from bloomface.classifier import GestureClassifier
-
-        torch.set_num_threads(1)
         classifier = GestureClassifier()
         connection.send("ready")
 
         while True:
-            width, height, stride, pixels = connection.recv()
+            message = connection.recv()
+            if len(message) == 2 and message[0] == "calibrate_neutral":
+                if not hasattr(classifier, "begin_neutral_calibration"):
+                    raise ValueError("La referencia de reposo sólo está disponible en MediaPipe.")
+                classifier.begin_neutral_calibration()
+                message = message[1]
+            width, height, stride, pixels = message
             image = Image.frombytes("RGB", (width, height), pixels, "raw", "RGB", stride, 1)
-            gesture, _, face_detected = classifier.predict(image)
-            connection.send(("prediction", gesture, face_detected))
+            result = classifier.diagnose(image)
+            connection.send(("prediction", result["gesture"], result["face_detected"],
+                             result["scores"], result["milliseconds"],
+                             result["input_image"].tobytes(),
+                             classifier.model_label,
+                             {key: result.get(key) for key in
+                              ("score_kind", "signals", "neutral_message", "calibrating_neutral")}))
     except (EOFError, BrokenPipeError):
         pass
     except Exception as error:
@@ -23,4 +31,8 @@ def run_classifier(connection):
         except (EOFError, OSError):
             pass
     finally:
-        connection.close()
+        try:
+            if classifier is not None:
+                classifier.close()
+        finally:
+            connection.close()

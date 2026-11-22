@@ -13,18 +13,19 @@ La aplicación de escritorio para Windows permitirá que una persona use la webc
 
 ## Estado del proyecto
 
-La aplicación de Windows usa la CNN del Parcial 2 para confirmar gestos. El generador floral está integrado y queda desactivado por defecto tras dos apagados durante las pruebas de la Radeon. En este modo se puede probar la webcam y el reconocimiento usando CPU.
+La aplicación de Windows usa exclusivamente **MediaPipe Face Landmarker** para reconocer los cuatro gestos; no carga la CNN del Parcial 2 ni LibreFace. El generador floral está integrado y queda desactivado por defecto tras dos apagados durante las pruebas de la Radeon. En este modo se puede probar la webcam y el reconocimiento usando CPU.
 
 ## Ejecutar en Windows
 
-Desde la carpeta del repositorio, con Python 3.12 y un entorno `.venv`:
+Abre la carpeta completa del repositorio en VS Code local y ejecuta **Run All / Ejecutar todo** en `BloomFace_Instalar_y_Probar.ipynb`. Puedes usar cualquier kernel Python local funcional: la primera celda crea o reutiliza el entorno compatible de la aplicación, instala dependencias y descarga y verifica el modelo. Si el Python del kernel no es compatible, obtiene Python 3.12 automáticamente mediante uv. Después abre BloomFace. No usa rutas de un equipo concreto ni requiere un kernel llamado BloomFace. Necesita Internet la primera vez.
 
-```powershell
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-.\.venv\Scripts\python.exe -m bloomface
-```
+Requisitos previos del notebook: Windows de 64 bits, VS Code con extensiones Python y Jupyter y un kernel Python con `ipykernel`. Si VS Code ofrece instalar ipykernel antes de ejecutar, acepta **Instalar**; ninguna celda puede instalar su propio kernel antes de empezar a ejecutarse. La preparación de la aplicación ocurre en `.venv` y no instala MediaPipe en el entorno del kernel. [Gestión automática de Python con uv](https://docs.astral.sh/uv/guides/install-python/).
 
-Para iniciar el reconocimiento, coloca `gestos_parcial2.pt`, `preprocesamiento.json` y `haarcascade_frontalface_default.xml` en `bloomface/models`. Git ignora esa carpeta. En la ventana, selecciona **Abrir cámara** y luego **Iniciar reconocimiento**.
+En la ventana pulsa **Abrir cámara → Iniciar reconocimiento**. Para establecer tu referencia personal pulsa **Ajustar reposo (rostro relajado)** y mantén boca y cejas relajadas durante 16 muestras con rostro detectado. **Restablecer referencia de reposo** borra ese ajuste y exige iniciar de nuevo reconocimiento.
+
+El único recurso facial requerido es `bloomface/models/mediapipe/face_landmarker.task`. Está fuera de Git y el notebook lo descarga si falta. No se necesitan `gestos_parcial2.pt`, `preprocesamiento.json` ni el XML Haar. No hay selector de modelos, entrenamiento ni calibración de la CNN. Las intensidades de sonrisa, mandíbula y cejas no son probabilidades. Consulta [MEDIAPIPE.md](MEDIAPIPE.md) para entender las reglas, límites y comprobaciones.
+
+También se puede ejecutar `python preparar_mediapipe.py` y después `python -m bloomface` desde el entorno local. El reconocimiento funciona en CPU y en un proceso separado de la interfaz.
 
 ## Generación floral
 
@@ -37,3 +38,5 @@ Los resultados y las decisiones están en [CONTEXTO_BLOOMFACE.md](CONTEXTO_BLOOM
 ## Trabajo en equipo
 
 Abrir la carpeta en GitHub Desktop mediante **File → Add local repository**. Antes del primer commit, verificar la cuenta y la identidad de Git. Los datos faciales se conservan fuera del repositorio y se comparten con los permisos acordados por el equipo.
+
+Los notebooks originales de generación floral y LibreFace se conservan como antecedentes académicos; el notebook de LibreFace no es una ruta de ejecución de la aplicación.

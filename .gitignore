@@ -34,3 +34,6 @@ Desktop.ini
 *.pt
 *.pth
 *.safetensors
+
+# Environments preserved by notebook setup
+.venv-respaldo-*/

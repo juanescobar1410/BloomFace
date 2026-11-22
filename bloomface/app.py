@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (
 )
 
 from bloomface.camera import CameraThread
+from bloomface.classifier import NEUTRAL_PATH
 from bloomface.floral import FloralProcess
 from bloomface.recognition import NO_FACE, WAITING_FOR_GESTURE, RecognitionThread
 
@@ -35,14 +36,15 @@ def _display_image(label, image):
 class BloomFaceWindow(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("BloomFace")
-        self.resize(850, 480)
+        self.setWindowTitle("BloomFace — MediaPipe Face Landmarker")
+        self.resize(1000, 640)
 
         self._camera = None
         self._camera_has_frame = False
         self._recognition = None
         self._closing = False
         self._paused = False
+        self._neutral_calibrating = False
         self._refresh = QTimer(self)
         self._refresh.setInterval(33)
         self._refresh.timeout.connect(self._show_latest_frame)
@@ -60,12 +62,28 @@ class BloomFaceWindow(QWidget):
         self._recognition_status = QLabel()
         self._recognition_status.setWordWrap(True)
 
+        self._signals = QLabel("MediaPipe recibe RGB. Las intensidades aparecerán al reconocer.")
+        self._signals.setWordWrap(True)
+        self._diagnostic_image = QLabel("Recorte de referencia")
+        self._diagnostic_image.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self._diagnostic_image.setMinimumSize(96, 96)
+        self._adjust_neutral = QPushButton("Ajustar reposo (rostro relajado)")
+        self._adjust_neutral.clicked.connect(self._calibrate_neutral)
+        self._reset_neutral = QPushButton("Restablecer referencia de reposo")
+        self._reset_neutral.clicked.connect(self._restore_neutral)
+
         camera_panel = QVBoxLayout()
         camera_panel.addWidget(QLabel("Vista de cámara"))
         camera_panel.addWidget(self._preview, 1)
         camera_panel.addWidget(self._recognition_status)
+        diagnostic_panel = QHBoxLayout()
+        diagnostic_panel.addWidget(self._diagnostic_image)
+        diagnostic_panel.addWidget(self._signals, 1)
+        camera_panel.addLayout(diagnostic_panel)
         camera_panel.addWidget(self._open_camera)
         camera_panel.addWidget(self._start_recognition_button)
+        camera_panel.addWidget(self._adjust_neutral)
+        camera_panel.addWidget(self._reset_neutral)
 
         self._generated = None
 
@@ -103,6 +121,49 @@ class BloomFaceWindow(QWidget):
         can_change_flower = not self._paused and self._recognition is None
         self._open_camera.setEnabled(not self._paused and self._camera is None)
         self._start_recognition_button.setEnabled(can_change_flower and self._camera_has_frame)
+        self._adjust_neutral.setEnabled(not self._paused and not self._closing
+                                       and self._recognition is not None and not self._recognition.stopping)
+        self._reset_neutral.setEnabled(not self._paused and not self._closing)
+
+    @Slot()
+    def _calibrate_neutral(self):
+        if self._recognition is None or self._recognition.stopping:
+            return
+        self._generator.invalidate()
+        self._neutral_calibrating = True
+        self._recognition.calibrate_neutral()
+        self._recognition_status.setText("Mantén boca y cejas relajadas durante 16 muestras válidas.")
+
+    @Slot()
+    def _restore_neutral(self):
+        if self._recognition is not None:
+            self._recognition.stop()
+        self._generator.invalidate()
+        self._neutral_calibrating = False
+        try:
+            NEUTRAL_PATH.unlink(missing_ok=True)
+            self._recognition_status.setText("Referencia eliminada. Vuelve a iniciar reconocimiento.")
+        except OSError as error:
+            self._recognition_status.setText(f"No se pudo eliminar la referencia: {error}")
+        self._update_controls()
+
+    @Slot(object)
+    def _show_diagnostic(self, result):
+        if (self._paused or self._closing or self._recognition is None
+                or self.sender() is not self._recognition or self._recognition.stopping):
+            return
+        image = QImage(result["pixels"], 64, 64, 64, QImage.Format.Format_Grayscale8).copy()
+        _display_image(self._diagnostic_image, image)
+        lines = ["MediaPipe · intensidades 0–1; no son probabilidades"]
+        lines.extend(f"{label}: {value:.2f}" for label, value in
+                     zip(list(GESTURES.values())[1:], result["scores"][1:]))
+        lines.append(f"Preparación + inferencia CPU: {result['milliseconds']:.0f} ms")
+        if not result["face_detected"]:
+            lines.append("Sin rostro detectado.")
+        self._signals.setText("\n".join(lines))
+        self._neutral_calibrating = bool(result.get("calibrating_neutral"))
+        if result.get("neutral_message"):
+            self._recognition_status.setText(result["neutral_message"])
 
     def _draw_flower(self):
         _display_image(self._flower_view, self._generated)
@@ -147,9 +208,10 @@ class BloomFaceWindow(QWidget):
     @Slot()
     def _start_recognition(self):
         self._generator.start()
-        self._recognition_status.setText("Cargando clasificador…")
+        self._recognition_status.setText("Cargando MediaPipe Face Landmarker en CPU…")
         self._recognition = RecognitionThread(self)
         self._recognition.update.connect(self._handle_recognition_update)
+        self._recognition.diagnostic.connect(self._show_diagnostic)
         self._recognition.finished.connect(self._recognition_finished)
         self._recognition.start()
         self._update_controls()
@@ -164,7 +226,8 @@ class BloomFaceWindow(QWidget):
             self._floral_status.clear()
             self._recognition_status.setText("Rostro no detectado. Vuelve al encuadre.")
         elif state == WAITING_FOR_GESTURE:
-            self._recognition_status.setText("Mantén el gesto hasta que se confirme.")
+            if not self._neutral_calibrating:
+                self._recognition_status.setText("Mantén un gesto claro hasta confirmarlo; las mezclas pueden quedar sin confirmar.")
         else:
             self._recognition_status.setText(f"Gesto confirmado: {GESTURES[state]}")
             self._generator.request(state)
