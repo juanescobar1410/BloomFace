@@ -1,3 +1,4 @@
+from html import escape
 from pathlib import Path
 import sys
 
@@ -170,6 +171,9 @@ class BloomFaceWindow(QWidget):
         self._return_to_instructions = False
         self._resume_after_stop = False
         self._error_retry = None
+        self._banner_kind = None
+        self._no_face_samples = 0
+        self._face_samples = 0
         self._generated = None
         self._refresh = QTimer(self)
         self._refresh.setInterval(33)
@@ -435,8 +439,13 @@ class BloomFaceWindow(QWidget):
         }
         self._actions.setCurrentIndex(action_indices.get(state, 0))
 
+    def _set_error_banner(self, message):
+        self._camera_error_banner.setTextFormat(Qt.TextFormat.RichText)
+        self._camera_error_banner.setText(f"<b>Error</b><br>{escape(message)}")
+
     def _show_error(self, message, retry, camera_error=True):
-        self._camera_error_banner.setText("Error\n" + message)
+        self._banner_kind = "camera" if camera_error else "recognition"
+        self._set_error_banner(message)
         self._camera_error_banner.show()
         self._error_retry = retry
         self._set_view_state(
@@ -448,6 +457,9 @@ class BloomFaceWindow(QWidget):
     def _retry_error(self):
         retry = self._error_retry
         self._error_retry = None
+        self._banner_kind = None
+        self._no_face_samples = 0
+        self._face_samples = 0
         self._camera_error_banner.clear()
         self._camera_error_banner.hide()
         self._set_view_state("preview", "Ajusta el encuadre antes de iniciar")
@@ -494,6 +506,28 @@ class BloomFaceWindow(QWidget):
         if (self._paused or self._closing or self._recognition is None
                 or self.sender() is not self._recognition or self._recognition.stopping):
             return
+
+        if result.get("face_detected"):
+            self._face_samples += 1
+            self._no_face_samples = 0
+            if self._banner_kind == "no_face" and self._face_samples >= 2:
+                self._banner_kind = None
+                self._camera_error_banner.clear()
+                self._camera_error_banner.hide()
+                self._set_view_state("waiting", "Mantén un gesto hasta que la flor responda")
+        else:
+            self._no_face_samples += 1
+            self._face_samples = 0
+            if self._no_face_samples >= 3 and self._banner_kind is None:
+                self._banner_kind = "no_face"
+                self._set_error_banner(
+                    "No se detectó ningún rostro. Ubícate frente a la cámara "
+                    "y asegúrate de que tu rostro esté bien iluminado."
+                )
+                self._camera_error_banner.show()
+                self._state_pill.setText("Rostro no detectado")
+                self._status_message.setText("Ubícate dentro del encuadre")
+
         self._neutral_calibrating = bool(result.get("calibrating_neutral"))
         if result.get("neutral_message"):
             self._status_message.setText(result["neutral_message"])
@@ -560,8 +594,12 @@ class BloomFaceWindow(QWidget):
         if state == NO_FACE:
             self._generator.invalidate()
             self._set_view_state("waiting", "Ubícate dentro del encuadre y mantén un gesto claro")
+            if self._banner_kind == "no_face":
+                self._state_pill.setText("Rostro no detectado")
         elif state == WAITING_FOR_GESTURE:
-            if not self._neutral_calibrating:
+            if self._banner_kind == "no_face":
+                self._state_pill.setText("Rostro no detectado")
+            elif not self._neutral_calibrating:
                 self._set_view_state("waiting", "Mantén un gesto hasta que la flor responda")
         else:
             label = GESTURES[state]
@@ -593,6 +631,9 @@ class BloomFaceWindow(QWidget):
     def _start_camera(self):
         if self._camera is not None or self._closing:
             return
+        self._banner_kind = None
+        self._no_face_samples = 0
+        self._face_samples = 0
         self._camera_error_banner.clear()
         self._camera_error_banner.hide()
         self._preview.setText("Abriendo cámara…")
