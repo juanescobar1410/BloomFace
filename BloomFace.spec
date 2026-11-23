@@ -6,6 +6,9 @@ from PyInstaller.utils.hooks import collect_all
 
 mp_datas, mp_binaries, mp_hiddenimports = collect_all('mediapipe')
 model = Path('bloomface/models/mediapipe/face_landmarker.task')
+logo = Path('bloomface/assets/brand/BloomFace_Logo.png')
+if not logo.is_file():
+    raise SystemExit('Falta el logo: ' + str(logo))
 if not model.is_file():
     raise SystemExit('Prepara MediaPipe con el notebook: falta ' + str(model))
 
@@ -14,6 +17,7 @@ a = Analysis(
     pathex=['.'],
     binaries=mp_binaries,
     datas=[
+        (str(logo), 'bloomface/assets/brand'),
         ('notebooks/BloomFace_Generacion_Floral.ipynb', 'notebooks'),
         ('bloomface/floral_worker.py', 'bloomface'),
         (str(model), 'bloomface/models/mediapipe'),
