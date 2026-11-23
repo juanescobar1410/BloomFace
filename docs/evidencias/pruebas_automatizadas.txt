@@ -1,0 +1,54 @@
+test_change_requires_fresh_confirmation (test_decision.ConfirmationTests.test_change_requires_fresh_confirmation) ... ok
+test_first_sample_at_three_seconds_or_later_confirms (test_decision.ConfirmationTests.test_first_sample_at_three_seconds_or_later_confirms) ... ok
+test_invalid_class (test_decision.ConfirmationTests.test_invalid_class) ... ok
+test_no_face_and_pause_reset (test_decision.ConfirmationTests.test_no_face_and_pause_reset) ... ok
+test_progress_reaches_full_only_on_confirmation_and_resets (test_decision.ConfirmationTests.test_progress_reaches_full_only_on_confirmation_and_resets) ... ok
+test_silence_between_samples_does_not_confirm (test_decision.ConfirmationTests.test_silence_between_samples_does_not_confirm) ... ok
+test_perfect_balanced (test_decision.MetricTests.test_perfect_balanced) ... ok
+test_rejections_reduce_recall_and_accuracy (test_decision.MetricTests.test_rejections_reduce_recall_and_accuracy) ... ok
+test_smile_open_mouth_confusion (test_decision.MetricTests.test_smile_open_mouth_confusion) ... ok
+test_rgb_input_timestamps_neutral_and_no_face (test_mediapipe.AdapterTests.test_rgb_input_timestamps_neutral_and_no_face) ... ok
+Descargando el modelo facial preentrenado de MediaPipe...
+Descargando el modelo facial preentrenado de MediaPipe...
+test_bad_download_never_becomes_ready (test_mediapipe.AssetTests.test_bad_download_never_becomes_ready) ... ok
+Descargando el modelo facial preentrenado de MediaPipe...
+test_bundle_download_validation_and_reuse (test_mediapipe.AssetTests.test_bundle_download_validation_and_reuse) ... ok
+test_ambiguous_and_unilateral_brow (test_mediapipe.DecisionTests.test_ambiguous_and_unilateral_brow) ... ok
+test_four_states_and_smiling_open_mouth (test_mediapipe.DecisionTests.test_four_states_and_smiling_open_mouth) ... ok
+test_neutral_reference_and_invalid_values (test_mediapipe.DecisionTests.test_neutral_reference_and_invalid_values) ... ok
+test_rejection_breaks_confirmation (test_mediapipe.DecisionTests.test_rejection_breaks_confirmation) ... ok
+test_real_model_child_process_no_face_and_clean_shutdown (test_process.RealWorkerTests.test_real_model_child_process_no_face_and_clean_shutdown) ... WARNING: Logging before InitGoogle() is written to STDERR
+W0000 00:00:1795463000.847413   14116 face_landmarker_graph.cc:181] Sets FaceBlendshapesGraph acceleration to xnnpack by default.
+INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+W0000 00:00:1795463000.853536   22552 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1795463000.862925   20952 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+ok
+test_console_with_limited_encoding_does_not_block_preparation (test_revision_setup.PreparationRevisionTests.test_console_with_limited_encoding_does_not_block_preparation) ... ok
+test_first_cell_does_not_claim_ready_on_preparation_failure (test_revision_setup.PreparationRevisionTests.test_first_cell_does_not_claim_ready_on_preparation_failure) ... ok
+test_incomplete_weights_are_not_declared_complete (test_revision_setup.PreparationRevisionTests.test_incomplete_weights_are_not_declared_complete) ... ok
+test_notebook_locates_another_copy_and_calls_its_preparer (test_revision_setup.PreparationRevisionTests.test_notebook_locates_another_copy_and_calls_its_preparer) ... ok
+Reconocimiento y generaci�n preparados. Contin�a para abrir BloomFace.
+Proyecto: C:\Users\juand\AppData\Local\Packages\OpenAI.Codex_2p2nqsd0c76g0\AC\#!sandbox.{b55f7eb8-d87f-4964-839e-58f35453a057}\Temp\tmp5d04w356
+test_portable_preparer_invokes_face_then_floral_in_the_copy (test_revision_setup.PreparationRevisionTests.test_portable_preparer_invokes_face_then_floral_in_the_copy) ... ok
+test_absent_and_ambiguous_never_request_a_flower (test_ui_connection.ConnectionTests.test_absent_and_ambiguous_never_request_a_flower) ... ok
+test_adjust_neutral_stays_in_existing_worker (test_ui_connection.ConnectionTests.test_adjust_neutral_stays_in_existing_worker) ... ok
+test_camera_border_starts_at_bottom_and_joins_at_top_when_ready (test_ui_connection.ConnectionTests.test_camera_border_starts_at_bottom_and_joins_at_top_when_ready) ... ok
+test_delayed_result_cannot_confirm_old_frame (test_ui_connection.ConnectionTests.test_delayed_result_cannot_confirm_old_frame) ... ok
+test_diagnostic_preserves_calibration_message (test_ui_connection.ConnectionTests.test_diagnostic_preserves_calibration_message) ... ok
+test_first_flower_loader_stops_on_close (test_ui_connection.ConnectionTests.test_first_flower_loader_stops_on_close) ... ok
+test_first_flower_loader_survives_fallback_and_stops_on_failure_or_pause (test_ui_connection.ConnectionTests.test_first_flower_loader_survives_fallback_and_stops_on_failure_or_pause) ... ok
+test_flower_rejected_by_filter_allows_another_round_without_switching_backend (test_ui_connection.ConnectionTests.test_flower_rejected_by_filter_allows_another_round_without_switching_backend) ... ok
+test_gpu_failure_retries_the_current_flower_on_cpu (test_ui_connection.ConnectionTests.test_gpu_failure_retries_the_current_flower_on_cpu) ... ok
+test_gpu_failure_uses_newest_request_and_respects_invalidation (test_ui_connection.ConnectionTests.test_gpu_failure_uses_newest_request_and_respects_invalidation) ... ok
+test_new_gesture_is_ignored_until_the_next_round (test_ui_connection.ConnectionTests.test_new_gesture_is_ignored_until_the_next_round) ... ok
+test_only_current_flower_reaches_the_composition (test_ui_connection.ConnectionTests.test_only_current_flower_reaches_the_composition) ... ok
+test_pause_and_resume_preserve_lifecycle (test_ui_connection.ConnectionTests.test_pause_and_resume_preserve_lifecycle) ... ok
+test_preview_uses_automatic_backend_without_a_checkbox (test_ui_connection.ConnectionTests.test_preview_uses_automatic_backend_without_a_checkbox) ... ok
+test_three_seconds_to_request_each_flower_without_duplicates (test_ui_connection.ConnectionTests.test_three_seconds_to_request_each_flower_without_duplicates) ... ok
+test_initialization_error_is_returned_and_pipe_closed (test_worker.WorkerTests.test_initialization_error_is_returned_and_pipe_closed) ... ok
+test_rgb_stride_and_full_diagnostic_message (test_worker.WorkerTests.test_rgb_stride_and_full_diagnostic_message) ... ok
+
+----------------------------------------------------------------------
+Ran 39 tests in 3.250s
+
+OK

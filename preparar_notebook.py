@@ -12,7 +12,7 @@ def supported_python(executable):
     try:
         result = subprocess.run(
             [str(executable), '-c',
-             'import sys,struct; sys.exit(not ((3,10) <= sys.version_info[:2] <= (3,13) and struct.calcsize("P") == 8))'],
+             'import sys,struct; sys.exit(not (sys.version_info[:2] == (3,12) and struct.calcsize("P") == 8))'],
             capture_output=True, timeout=15,
         )
         return result.returncode == 0
@@ -25,7 +25,11 @@ def run(command, root, env):
                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                           text=True, encoding='utf-8', errors='replace') as process:
         for line in process.stdout:
-            print(line, end='', flush=True)
+            try:
+                print(line, end='', flush=True)
+            except UnicodeEncodeError:
+                encoding = getattr(sys.stdout, 'encoding', None) or 'utf-8'
+                print(line.encode(encoding, errors='replace').decode(encoding), end='', flush=True)
         if process.wait():
             raise RuntimeError('La preparación no terminó. Revisa el mensaje anterior y vuelve a ejecutar la celda. Necesita Internet la primera vez.')
 
@@ -36,7 +40,7 @@ def prepare(root):
     root = Path(root).resolve()
     output = root / 'output'
     output.mkdir(exist_ok=True)
-    env = dict(os.environ, PYTHONUTF8='1', PYTHONUNBUFFERED='1')
+    env = dict(os.environ, PYTHONUTF8='1', PYTHONUNBUFFERED='1', MPLBACKEND='Agg')
     local = root / '.venv/Scripts/python.exe'
     print('Proyecto:', root, flush=True)
     if not supported_python(local):
@@ -72,4 +76,6 @@ def prepare(root):
     state = json.loads((output / 'estado_mediapipe.json').read_text(encoding='utf-8'))
     if not state.get('preparado'):
         raise RuntimeError('El modelo no completó la comprobación.')
+    env['BLOOMFACE_FLORAL_RUNTIME'] = str(root / 'floral_runtime')
+    run([local, '-B', root / 'preparar_floral.py'], root, env)
     return local, output, env, state

@@ -7,3 +7,4 @@ peft==0.14.0
 accelerate==1.3.0
 numpy<2
 Pillow
+huggingface-hub>=0.25,<1

@@ -1,0 +1,13 @@
+{
+  "ok": true,
+  "backend": "cpu",
+  "gesture": "reposo",
+  "webcam": false,
+  "protocolo": "Gesto inyectado al controlador real; pesos y worker reales; sin participante.",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "python": "3.12.14",
+  "width": 384,
+  "height": 384,
+  "generation_seconds": 21.593356600000334,
+  "total_seconds": 42.14497950000032
+}
