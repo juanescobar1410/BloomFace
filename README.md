@@ -21,11 +21,21 @@ Abre la carpeta completa del repositorio en VS Code local y ejecuta **Run All / 
 
 Requisitos previos del notebook: Windows de 64 bits, VS Code con extensiones Python y Jupyter y un kernel Python con `ipykernel`. Si VS Code ofrece instalar ipykernel antes de ejecutar, acepta **Instalar**; ninguna celda puede instalar su propio kernel antes de empezar a ejecutarse. La preparación de la aplicación ocurre en `.venv` y no instala MediaPipe en el entorno del kernel. [Gestión automática de Python con uv](https://docs.astral.sh/uv/guides/install-python/).
 
-En la ventana pulsa **Abrir cámara → Iniciar reconocimiento**. Para establecer tu referencia personal pulsa **Ajustar reposo (rostro relajado)** y mantén boca y cejas relajadas durante 16 muestras con rostro detectado. **Restablecer referencia de reposo** borra ese ajuste y exige iniciar de nuevo reconocimiento.
+Al abrirse la aplicación, pulsa **Iniciar** para ver las instrucciones. **Continuar** abre la pantalla principal y activa la cámara; todavía no inicia el reconocimiento. Ajusta el encuadre y pulsa **Iniciar** para comenzar a reconocer gestos. **Pausar** detiene el reconocimiento y **Reanudar** lo inicia de nuevo. **Finalizar** cierra la aplicación.
 
 El único recurso facial requerido es `bloomface/models/mediapipe/face_landmarker.task`. Está fuera de Git y el notebook lo descarga si falta. No se necesitan `gestos_parcial2.pt`, `preprocesamiento.json` ni el XML Haar. No hay selector de modelos, entrenamiento ni calibración de la CNN. Las intensidades de sonrisa, mandíbula y cejas no son probabilidades. Consulta [MEDIAPIPE.md](MEDIAPIPE.md) para entender las reglas, límites y comprobaciones.
 
 También se puede ejecutar `python preparar_mediapipe.py` y después `python -m bloomface` desde el entorno local. El reconocimiento funciona en CPU y en un proceso separado de la interfaz.
+
+## Interfaz y estados
+
+La interfaz tiene una pantalla de bienvenida, una pantalla de instrucciones y la pantalla principal. La cámara se abre al pulsar **Continuar**; el reconocimiento empieza únicamente al pulsar **Iniciar** en la pantalla principal. La vista principal muestra la cámara a la izquierda y deja el panel **Tu composición** disponible para la imagen generada.
+
+El estado aparece en la etiqueta de la esquina superior derecha, por ejemplo **Vista Previa**, **Esperando gesto estable**, **Gesto estable: Sonrisa**, **En pausa** o **Rostro no detectado**. El recorte diagnóstico y las intensidades del modelo ya no se muestran en la interfaz. El aviso de rostro no detectado aparece tras tres muestras seguidas sin rostro y se quita después de dos detecciones seguidas. Los errores de cámara aparecen en el mismo panel bajo la vista de cámara e incluyen **Reintentar** y **Finalizar**.
+
+Los botones **Ajustar reposo** y **Restablecer referencia** se conservan bajo la vista de cámara. Para fijar la referencia, inicia el reconocimiento, pulsa **Ajustar reposo** y mantén boca y cejas relajadas durante 16 muestras válidas. **Restablecer referencia** elimina el ajuste y detiene el reconocimiento; vuelve a pulsar **Iniciar** para comenzar otra vez.
+
+El logo original está en `bloomface/assets/brand/BloomFace_Logo.svg`; la aplicación y el empaquetado usan su versión PNG transparente en `bloomface/assets/brand/BloomFace_Logo.png`. En ejecución local, la aplicación carga Agrandir desde `agrandir-font-family` si están disponibles `Agrandir-Regular.otf` y `Agrandir-TextBold.otf`. El archivo de licencia incluido indica uso personal únicamente; las fuentes no se agregan al paquete ejecutable.
 
 ## Generación floral
 
