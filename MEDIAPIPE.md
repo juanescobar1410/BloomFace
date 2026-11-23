@@ -19,9 +19,9 @@ El modelo recibe RGB con lado máximo de 640 conservando proporción. El recorte
 | 2 | boca_abierta | Mandíbula ≥ 0,45, sonrisa < 0,30 y ceño < 0,35 | Más abierta |
 | 3 | ceno_fruncido | Mínimo de ambas cejas ≥ 0,35, sonrisa y mandíbula < 0,30 | Cerrada |
 
-La sonrisa tiene prioridad cuando también abre la boca. Las mezclas que no cumplan una regla quedan sin confirmar. La ausencia de rostro reinicia confirmación e invalida generaciones pendientes. Los umbrales son iniciales y no se han seleccionado con validación del equipo. Hablar puede abrir la mandíbula y activar boca abierta; comprobarlo con participantes. Ajustar reposo no garantiza precisión ni reemplaza validación.
+La sonrisa tiene prioridad cuando también abre la boca. Las mezclas que no cumplan una regla quedan sin confirmar. La ausencia de rostro reinicia la confirmación mientras se espera un gesto. La ronda conserva la expresión elegida durante la generación y se pausa al mostrar la flor. Los umbrales son iniciales y no se han seleccionado con validación del equipo. Hablar puede abrir la mandíbula y activar boca abierta; comprobarlo con participantes. Ajustar reposo no garantiza precisión ni reemplaza validación.
 
-Se conservan hasta ocho muestras por segundo y tres decisiones consecutivas. La medición mostrada incluye preparación e inferencia CPU; excluye cámara, IPC, confirmación y carga del modelo. El trabajo pesado permanece en un proceso separado; pausa, reanudación y cierre conservan el ciclo original de la aplicación.
+Se analizan hasta ocho muestras por segundo. Un gesto se confirma en la primera muestra válida tras mantenerlo durante 3 segundos continuos, medidos con un reloj monotónico. Un cambio de gesto, una lectura ambigua, la ausencia de rostro, la pausa o un intervalo de más de un segundo sin muestras válidas reinician la confirmación. La medición mostrada incluye preparación e inferencia CPU; excluye cámara, IPC, confirmación y carga del modelo. El trabajo pesado permanece en un proceso separado; pausa, reanudación y cierre conservan el ciclo original de la aplicación.
 
 ## Generación y alcance
 

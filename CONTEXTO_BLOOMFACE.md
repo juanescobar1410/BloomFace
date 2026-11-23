@@ -151,3 +151,47 @@ Primera comparación propuesta en Colab con GPU: SD 1.5 con la foto y la máscar
 La primera celda ejecuta preparar_notebook.py con biblioteca estándar, localiza el repositorio sin rutas personales, crea o reutiliza .venv, prepara las dependencias y comprueba el modelo. Un kernel incompatible puede obtener Python 3.12 mediante uv de PyPI, con recursos bajo output. El notebook vuelve a metadata genérica Python 3: no exige el kernel local BloomFace. VS Code sí necesita un kernel funcional para ejecutar la primera celda.
 
 Validación: se ejecutó la primera celda en una copia sin .venv ni modelos, desde Python 3.15.2. Obtuvo CPython 3.12.16 mediante uv, creó .venv, instaló dependencias, descargó el modelo y completó inferencia real sin rostro y pip check. También se ejecutaron todas las celdas con el kernel Jupyter disponible y se verificó el inicio de Qt en modo offscreen, cerrando el proceso de prueba. Pasaron las 23 pruebas de regresión. No se probó webcam ni generación GPU. Los cambios siguen locales, sin commit ni push.
+
+### Generación floral portátil en CPU · 22 de noviembre de 2026
+
+- Se sustituyó DirectML por inferencia FP32 en CPU con dos hilos en el repositorio original. La aplicación inicia el generador al comenzar el reconocimiento, usa las cuatro guías del cuaderno y entrega solo el resultado vigente.
+- El ZIP portátil de Windows x64 incluye la aplicación, Python aislado, PyTorch CPU, el modelo facial y los pesos florales existentes. Se abre con `BloomFace.exe` después de extraer toda la carpeta.
+- En un Ryzen 5 5600X con 31,92 GiB de RAM, la referencia a 512 × 512 tardó entre 42,29 y 44,93 s por acuarela y alcanzó 8,60 GiB en el proceso floral. A 384 × 384 con atención del producto escalar de PyTorch y cuatro pasos, la variante elegida tomó 24,05 s (cerrada), 22,74 s (punto medio), 21,89 s (abierta) y 43,68 s (más abierta). La carga inicial tomó 25,87 s y el pico del generador fue de 8,09 GiB.
+- Las cuatro imágenes llegaron al widget de composición al inyectar los gestos confirmados, usando el generador y los pesos del paquete en modo offline. Se revisó que los pétalos de la cuarta etapa se extendieran más que los de la tercera. También se comprobó que el ejecutable abre sin Python en PATH. Faltan pruebas con la webcam física en el PC del profesor y en un Windows limpio. Las 23 comprobaciones aprobadas incluyen la nueva prueba de descarte de resultados obsoletos. La prueba de diagnóstico antigua sigue apuntando a controles que no existen en la rama base.
+
+### Selección automática de GPU y respaldo en CPU · 22 de noviembre de 2026
+
+- BloomFace intenta iniciar la generación mediante DirectML en el adaptador predeterminado de Windows. El perfil GPU trabaja a 512 × 512 en FP16. Si DirectML no está disponible o el proceso falla o supera su tiempo de espera, la aplicación utiliza el perfil CPU de 384 × 384 en FP32 y procesa el gesto vigente. La vista previa ofrece la opción **Solo CPU**.
+- Se mantuvieron los pesos locales, los cuatro estados, el filtro y el descarte de solicitudes obsoletas. La CPU y DirectML se incluyen en un solo entorno portátil. Se ejecutan en procesos separados cuando se cambia de modo, con los mismos pesos en disco.
+- Pasaron 28 pruebas automatizadas. El monitor de prueba reprodujo el arranque sin DirectML, el cambio automático a CPU y la aparición de una acuarela de sonrisa de 384 × 384 en el widget de composición. La generación duró 49,36 s en esa solicitud y alcanzó 8,11 GiB. La GPU Radeon detectada completó una operación FP16 mínima. No se aplicó una carga completa de difusión en GPU en este equipo por los apagados previos.
+
+### Confirmación de gestos por tiempo · 23 de noviembre de 2026
+
+- BloomFace confirma una expresión tras mantenerla 3 segundos, en la primera muestra válida que alcanza ese tiempo. Usa marcas del reloj monotónico capturadas en la cámara. Cambiar de expresión, una lectura ambigua, perder el rostro u omitir más de un segundo de muestras válidas reinicia el conteo. Pausar descarta el intento y reanudar empieza uno nuevo.
+- Cada confirmación solicita una sola acuarela. Sostener el gesto no repite solicitudes. Ceño fruncido corresponde a Cerrada, reposo a Punto medio, sonrisa a Abierta y boca abierta a Más abierta. Si llega otra confirmación, solo se muestra el resultado vigente.
+- Pasaron 29 pruebas automatizadas. Se verificaron los límites de 2,99 y 3 segundos, la primera muestra posterior al límite, las interrupciones, el descarte de lecturas atrasadas y las cuatro solicitudes sin duplicados a través del controlador de la interfaz. Se comprobó el mapa de etapas del cuaderno. Queda pendiente probar la experiencia con la webcam física. El ZIP portátil del 22 de noviembre se construyó antes de este cambio.
+
+### Una flor por ronda · 23 de noviembre de 2026
+
+- BloomFace genera una acuarela con el primer gesto confirmado de cada ronda. Durante esa generación no toma gestos adicionales. Al mostrar la imagen, pausa el reconocimiento y conserva la composición. El mismo botón **Iniciar** permite comenzar otra ronda, con un conteo nuevo de tres segundos.
+- Una pausa manual conserva su acción **Reanudar**. Si la generación falla, la composición anterior permanece visible y **Iniciar** permite volver a intentar con otro gesto. La generación y el respaldo de GPU a CPU siguen en el proceso floral existente.
+- Pasaron 30 pruebas automatizadas. Se simularon cuatro rondas, la pausa automática, la reutilización del mismo botón **Iniciar**, el descarte de gestos adicionales y la recuperación tras una generación rechazada. Queda pendiente comprobar la secuencia con la webcam física.
+
+- Se retiró la casilla **Solo CPU** de la vista previa. El generador selecciona el dispositivo automáticamente con DirectML y conserva el respaldo en CPU.
+
+### Indicador visual de confirmación · 23 de noviembre de 2026
+
+- El borde de la cámara muestra el progreso medido por el clasificador durante los tres segundos. Dos tramos iluminados avanzan desde el centro inferior hacia el centro superior. La interpolación suaviza cada actualización y el recorrido acelera y desacelera. Durante la carga usa el degradado magenta y rosa de **Iniciar**. Al final se funde con el verde de confirmación y ambos tramos se unen.
+- Si se interrumpe el gesto, el borde se reinicia. La confirmación se conserva visible durante la generación. Al iniciar otra ronda, el indicador vuelve a cero.
+- Pasaron 32 pruebas automatizadas. Se comprobó el progreso antes y después del umbral, el reinicio, el recorrido simétrico y el cierre verde mediante capturas de Qt sin abrir la webcam. La evidencia visual está en `output/verificacion_borde_bloomface.png`.
+
+### Indicador de carga de la primera flor · 23 de noviembre de 2026
+
+- El recuadro «Tu composición» muestra la flor pequeña de la derecha del logo oficial durante la primera solicitud. Se aíslan los ocho pétalos del PNG de marca y se animan en gris claro, en sentido circular y desde la base de cada pétalo. El texto baja y recibe un reflejo lento durante la espera.
+- La animación sigue activa si la generación pasa de GPU a CPU. Se detiene al mostrar la primera imagen, pausar, cerrar o recibir un error. Se reactiva si se reintenta antes de obtener una acuarela. Las rondas siguientes conservan la imagen anterior mientras se genera otra.
+- Pasaron 34 pruebas automatizadas. Se comprobaron los ocho pétalos y sus estados mediante señales simuladas, y se revisó el centrado, el texto y el tamaño fijo del recuadro con `output/verificacion_carga_primera_flor.png`. Falta probar el recorrido con la webcam física.
+
+### Corrección del arranque del portátil · 23 de noviembre de 2026
+
+- Se reprodujo el fallo de importación de QtCore en el portátil. Durante la compilación se había recogido una DLL `icuuc.dll` de otra aplicación con una interfaz incompatible con la que Qt usa en Windows. Se aisló la DLL en el portátil anterior y se restringió la búsqueda de bibliotecas del compilador. La especificación deja que Windows provea las DLL de ICU.
+- La compilación corregida está en `dist/BloomFace-Auto-20261123-020309-844995`. Se identificó la ventana real de Qt con título BloomFace incluso con el PATH limitado a Windows. Se verificaron la integridad del ZIP y la presencia del ejecutable, los modelos y el entorno floral.

@@ -1,3 +1,5 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.4.1+cpu
 torch-directml==0.2.5.dev240914
 diffusers==0.32.2
 transformers==4.48.3

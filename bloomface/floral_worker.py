@@ -8,11 +8,13 @@ import sys
 import time
 
 from diffusers import ControlNetModel, LCMScheduler, StableDiffusionPipeline
-from diffusers.models.attention_processor import AttnProcessor
+from diffusers.models.attention_processor import AttnProcessor, AttnProcessor2_0
 from PIL import Image, ImageDraw
 import torch
-import torch_directml
 
+
+CPU_IMAGE_SIZE = 384
+GPU_IMAGE_SIZE = 512
 
 def read_configuration(path):
     names = {"contornos", "contornos_nuevos", "formas", "formas_nuevas", "estilo", "etapa_por_expresion"}
@@ -33,20 +35,27 @@ def read_configuration(path):
 
 
 class FloralGenerator:
-    def __init__(self, notebook, weights):
-        torch.set_num_threads(4)
-        self.device = next(
-            (torch_directml.device(index)
-             for index in range(torch_directml.device_count())
-             if "RX 6600 XT" in torch_directml.device_name(index)),
-            None,
-        )
-        if self.device is None:
-            raise RuntimeError("PyTorch DirectML no detectó la Radeon RX 6600 XT.")
-        self.dtype = torch.float16
+    def __init__(self, notebook, weights, backend="cpu"):
+        torch.set_num_threads(2)
+        torch.set_num_interop_threads(1)
+        self.device = torch.device("cpu")
+        self.dtype = torch.float32
+        self.image_size = CPU_IMAGE_SIZE
+        gpu = backend == "gpu"
+        if gpu:
+            import torch_directml
+
+            if not torch_directml.is_available():
+                raise RuntimeError("DirectML no encontró una GPU compatible.")
+            self.device = torch_directml.device()
+            self.dtype = torch.float16
+            self.image_size = GPU_IMAGE_SIZE
+            probe = torch.ones(1, dtype=self.dtype).to(self.device)
+            if (probe + probe).cpu().item() != 2:
+                raise RuntimeError("Falló la comprobación de la GPU con DirectML.")
         self.base = StableDiffusionPipeline.from_pretrained(
             str(weights / "sd15"), torch_dtype=self.dtype, variant="fp16",
-            use_safetensors=True, local_files_only=True,
+            use_safetensors=True, local_files_only=True, low_cpu_mem_usage=True,
         )
         if self.base.safety_checker is None:
             raise RuntimeError("Falta el filtro de seguridad del modelo.")
@@ -58,17 +67,18 @@ class FloralGenerator:
         self.base.unload_lora_weights()
         self.control = ControlNetModel.from_pretrained(
             str(weights / "scribble"), torch_dtype=self.dtype, variant="fp16",
-            use_safetensors=True, local_files_only=True,
+            use_safetensors=True, local_files_only=True, low_cpu_mem_usage=True,
         )
         self.base.text_encoder.float()
         self.base.safety_checker.float()
         self.vae = self.base.vae
         self.unet = self.base.unet
         for model in (self.vae, self.unet, self.control):
-            model.set_attn_processor(AttnProcessor())
+            model.set_attn_processor(AttnProcessor() if gpu else AttnProcessor2_0())
             model.to(device=self.device, dtype=self.dtype)
-        self.unet.set_attention_slice("auto")
-        self.control.set_attention_slice("auto")
+        if gpu:
+            self.unet.set_attention_slice("auto")
+            self.control.set_attention_slice("auto")
         self.scheduler = LCMScheduler.from_config(self.base.scheduler.config)
         values = read_configuration(notebook)
         self.stages = values["etapa_por_expresion"]
@@ -81,6 +91,8 @@ class FloralGenerator:
                 drawing = ImageDraw.Draw(guide)
                 drawing.line(contour, fill="white", width=5, joint="curve")
                 drawing.line([(256, 270), (254, 335), (256, 410)], fill="white", width=5)
+                if not gpu:
+                    guide = guide.resize((self.image_size, self.image_size), Image.Resampling.BILINEAR)
                 # ControlNet recibe RGB [0, 1].
                 guide_array = self.base.image_processor.pil_to_numpy(guide)
                 guide_tensor = self.base.image_processor.numpy_to_pt(guide_array)
@@ -97,23 +109,25 @@ class FloralGenerator:
         prompt, guide = self.conditions[stage]
         generator = torch.Generator(device="cpu").manual_seed(seed)
         self.scheduler.set_timesteps(4, device="cpu")
-        latents = torch.randn((1, 4, 64, 64), generator=generator) * self.scheduler.init_noise_sigma
+        latent_size = self.image_size // self.base.vae_scale_factor
+        latents = torch.randn((1, 4, latent_size, latent_size), generator=generator)
+        latents *= self.scheduler.init_noise_sigma
         for timestep in self.scheduler.timesteps:
-            latent_input = self.scheduler.scale_model_input(latents, timestep).to(device=self.device, dtype=self.dtype)
-            timestep_device = timestep.to(device=self.device)
+            latent_input = self.scheduler.scale_model_input(latents, timestep).to(self.device, self.dtype)
+            model_timestep = timestep.to(self.device)
             down, middle = self.control(
-                latent_input, timestep_device, encoder_hidden_states=prompt,
+                latent_input, model_timestep, encoder_hidden_states=prompt,
                 controlnet_cond=guide, conditioning_scale=0.9, return_dict=False,
             )
             noise = self.unet(
-                latent_input, timestep_device, encoder_hidden_states=prompt,
+                latent_input, model_timestep, encoder_hidden_states=prompt,
                 down_block_additional_residuals=down, mid_block_additional_residual=middle,
                 return_dict=False,
             )[0]
             latents = self.scheduler.step(noise.cpu().float(), timestep, latents, generator=generator).prev_sample
-        latent = latents.to(device=self.device, dtype=self.dtype) / self.vae.config.scaling_factor
-        decoded = self.vae.decode(latent, return_dict=False)[0].cpu().float()
-        decoded, flagged = self.base.run_safety_checker(decoded, torch.device("cpu"), torch.float32)
+        latent = latents.to(self.device, self.dtype) / self.vae.config.scaling_factor
+        decoded = self.vae.decode(latent, return_dict=False)[0]
+        decoded, flagged = self.base.run_safety_checker(decoded.cpu().float(), torch.device("cpu"), torch.float32)
         if flagged[0]:
             return None
         image = self.base.image_processor.postprocess(decoded, output_type="pil")[0]
@@ -133,11 +147,12 @@ def send(message):
 
 
 def main():
+    backend = sys.argv[3]
     try:
-        generator = FloralGenerator(Path(sys.argv[1]), Path(sys.argv[2]))
+        generator = FloralGenerator(Path(sys.argv[1]), Path(sys.argv[2]), backend)
     except Exception as error:
-        send({"error": str(error)})
-        return
+        send({"fatal": str(error)})
+        return 1
     send({"ready": True})
     for line in sys.stdin:
         request = json.loads(line)
@@ -152,10 +167,13 @@ def main():
             else:
                 response["error"] = "No se obtuvo una acuarela utilizable."
         except Exception as error:
+            if backend == "gpu":
+                send({"fatal": str(error)})
+                return 1
             response["error"] = str(error)
         response["seconds"] = time.perf_counter() - started
         send(response)
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

@@ -1,4 +1,5 @@
 from threading import Lock
+from time import monotonic_ns
 
 import cv2
 from PySide6.QtCore import QThread
@@ -14,9 +15,9 @@ class CameraThread(QThread):
 
     def take_frame(self):
         with self._frame_lock:
-            frame = self._latest_frame
+            sample = self._latest_frame
             self._latest_frame = None
-        return frame
+        return sample
 
     def run(self):
         capture = cv2.VideoCapture()
@@ -31,12 +32,13 @@ class CameraThread(QThread):
                     self.error = "Se perdió la señal de la cámara. Revisa la conexión."
                     return
 
+                captured_ns = monotonic_ns()
                 height, width = frame.shape[:2]
                 image = QImage(
                     frame.data, width, height, frame.strides[0], QImage.Format.Format_BGR888
                 ).copy()
                 with self._frame_lock:
-                    self._latest_frame = image
+                    self._latest_frame = (image, captured_ns)
         except cv2.error:
             self.error = "Ocurrió un error al leer la cámara."
         finally:

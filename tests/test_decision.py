@@ -4,36 +4,61 @@ from bloomface.metrics import classification_report
 
 
 class ConfirmationTests(unittest.TestCase):
-    def test_three_frames_each_class(self):
-        for label in CLASSES:
-            state = GestureConfirmation()
-            self.assertEqual([state.update(label, True) for _ in range(4)],
-                             [WAITING_FOR_GESTURE, WAITING_FOR_GESTURE, label, label])
+    def setUp(self):
+        self.state = GestureConfirmation()
+
+    def update(self, gesture, milliseconds, face_detected=True):
+        return self.state.update(gesture, face_detected, milliseconds * 1_000_000)
+
+    def test_first_sample_at_three_seconds_or_later_confirms(self):
+        for label, final_sample in zip(CLASSES, (3000, 3001, 3050, 3000)):
+            with self.subTest(label=label):
+                self.state.reset()
+                for time_ms in (0, 750, 1500, 2250, 2990):
+                    self.assertEqual(self.update(label, time_ms), WAITING_FOR_GESTURE)
+                self.assertEqual(self.update(label, final_sample), label)
+
+    def test_progress_reaches_full_only_on_confirmation_and_resets(self):
+        for time_ms in (0, 750, 1500, 2250, 2990):
+            self.assertEqual(self.update("sonrisa", time_ms), WAITING_FOR_GESTURE)
+            self.assertAlmostEqual(self.state.progress, time_ms / 3000)
+        self.assertEqual(self.update("sonrisa", 3000), "sonrisa")
+        self.assertEqual(self.state.progress, 1.0)
+        self.assertEqual(self.update(None, 3100), WAITING_FOR_GESTURE)
+        self.assertEqual(self.state.progress, 0.0)
 
     def test_change_requires_fresh_confirmation(self):
-        state = GestureConfirmation()
-        for _ in range(3):
-            state.update(CLASSES[0], True)
-        self.assertEqual(state.update(CLASSES[1], True), WAITING_FOR_GESTURE)
-        self.assertEqual(state.update(CLASSES[0], True), WAITING_FOR_GESTURE)
+        self.assertEqual(self.update("reposo", 0), WAITING_FOR_GESTURE)
+        self.assertEqual(self.update("reposo", 1000), WAITING_FOR_GESTURE)
+        self.assertEqual(self.update("reposo", 2000), WAITING_FOR_GESTURE)
+        for time_ms in (2900, 3900, 4900, 5890):
+            self.assertEqual(self.update("sonrisa", time_ms), WAITING_FOR_GESTURE)
+        self.assertEqual(self.update("sonrisa", 5900), "sonrisa")
 
-    def test_face_loss_resets_even_same_gesture(self):
-        state = GestureConfirmation()
-        for _ in range(3):
-            state.update(CLASSES[2], True)
-        self.assertEqual(state.update(CLASSES[2], False), NO_FACE)
-        self.assertEqual(state.update(CLASSES[2], True), WAITING_FOR_GESTURE)
+    def test_no_face_and_pause_reset(self):
+        for end_attempt in ("no_face", "pause"):
+            with self.subTest(end_attempt=end_attempt):
+                self.state.reset()
+                for time_ms in (0, 1000, 2000, 2990):
+                    self.assertEqual(self.update("boca_abierta", time_ms), WAITING_FOR_GESTURE)
+                if end_attempt == "no_face":
+                    self.assertEqual(self.update(None, 2995, face_detected=False), NO_FACE)
+                else:
+                    self.state.reset()
+                for time_ms in (3000, 4000, 5000, 5990):
+                    self.assertEqual(self.update("boca_abierta", time_ms), WAITING_FOR_GESTURE)
+                self.assertEqual(self.update("boca_abierta", 6000), "boca_abierta")
 
-    def test_pause_reset(self):
-        state = GestureConfirmation()
-        state.update(CLASSES[3], True)
-        state.update(CLASSES[3], True)
-        state.reset()
-        self.assertEqual(state.update(CLASSES[3], True), WAITING_FOR_GESTURE)
+    def test_silence_between_samples_does_not_confirm(self):
+        self.assertEqual(self.update("sonrisa", 0), WAITING_FOR_GESTURE)
+        self.assertEqual(self.update("sonrisa", 3000), WAITING_FOR_GESTURE)
+        for time_ms in (4000, 5000, 5990):
+            self.assertEqual(self.update("sonrisa", time_ms), WAITING_FOR_GESTURE)
+        self.assertEqual(self.update("sonrisa", 6000), "sonrisa")
 
     def test_invalid_class(self):
         with self.assertRaises(ValueError):
-            GestureConfirmation().update("otro", True)
+            self.update("otro", 0)
 
 
 class MetricTests(unittest.TestCase):

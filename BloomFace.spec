@@ -18,6 +18,7 @@ a = Analysis(
     binaries=mp_binaries,
     datas=[
         (str(logo), 'bloomface/assets/brand'),
+        ('agrandir-font-family', 'agrandir-font-family'),
         ('notebooks/BloomFace_Generacion_Floral.ipynb', 'notebooks'),
         ('bloomface/floral_worker.py', 'bloomface'),
         (str(model), 'bloomface/models/mediapipe'),
@@ -30,6 +31,10 @@ a = Analysis(
     noarchive=False,
     optimize=0,
 )
+# Qt uses the unversioned ICU ABI provided by Windows. A third-party DLL with
+# the same filename can otherwise override it in the frozen application.
+a.binaries = [entry for entry in a.binaries if entry[0].lower() not in {"icuuc.dll", "icuin.dll"}]
+
 pyz = PYZ(a.pure)
 
 exe = EXE(

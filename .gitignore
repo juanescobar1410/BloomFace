@@ -18,6 +18,7 @@ venv/
 # Builds and generated output
 /build/
 /dist/
+/floral_runtime/
 /output/
 /tmp/
 Thumbs.db
