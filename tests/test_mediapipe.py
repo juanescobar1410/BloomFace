@@ -43,12 +43,14 @@ class DecisionTests(unittest.TestCase):
             BlendshapeDecision(signals(jaw=1.))
 
     def test_rejection_breaks_confirmation(self):
-        confirm = GestureConfirmation(3)
-        confirm.update('sonrisa', True)
-        confirm.update('sonrisa', True)
-        self.assertEqual(confirm.update(None, True), WAITING_FOR_GESTURE)
-        self.assertEqual(confirm.update('sonrisa', True), WAITING_FOR_GESTURE)
-        self.assertEqual(confirm.update(None, False), NO_FACE)
+        confirm = GestureConfirmation()
+        for second in (0, 1, 2):
+            self.assertEqual(confirm.update('sonrisa', True, second * 1_000_000_000), WAITING_FOR_GESTURE)
+        self.assertEqual(confirm.update(None, True, 2_990_000_000), WAITING_FOR_GESTURE)
+        for second in (3, 4, 5):
+            self.assertEqual(confirm.update('sonrisa', True, second * 1_000_000_000), WAITING_FOR_GESTURE)
+        self.assertEqual(confirm.update('sonrisa', True, 6_000_000_000), 'sonrisa')
+        self.assertEqual(confirm.update(None, False, 6_050_000_000), NO_FACE)
 
 
 class AdapterTests(unittest.TestCase):

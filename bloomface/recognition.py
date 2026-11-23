@@ -1,28 +1,28 @@
 from multiprocessing import get_context
 from threading import Condition
-from time import monotonic
+from time import monotonic_ns
 
 from PySide6.QtCore import QThread, Signal
 from PySide6.QtGui import QImage
 
 from bloomface.inference_worker import run_classifier
-from bloomface.decision import GestureConfirmation, WAITING_FOR_GESTURE, NO_FACE
+from bloomface.decision import GestureConfirmation, MAX_SAMPLE_GAP_NS, WAITING_FOR_GESTURE
 
 
-CONFIRMATION_FRAMES = 3
-FRAME_INTERVAL_SECONDS = 0.125
+FRAME_INTERVAL_NS = 125_000_000
 
 
 class RecognitionThread(QThread):
     update = Signal(str)
     diagnostic = Signal(object)
+    progress = Signal(float)
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.error = None
         self._condition = Condition()
         self._latest_frame = None
-        self._next_capture = 0.0
+        self._next_capture = 0
         self._stopping = False
         self._neutral_requested = False
 
@@ -35,13 +35,12 @@ class RecognitionThread(QThread):
         with self._condition:
             return self._stopping
 
-    def submit_frame(self, frame):
-        now = monotonic()
+    def submit_frame(self, frame, captured_ns):
         with self._condition:
-            if self._stopping or now < self._next_capture:
+            if self._stopping or captured_ns < self._next_capture:
                 return
-            self._next_capture = now + FRAME_INTERVAL_SECONDS
-            self._latest_frame = frame
+            self._next_capture = captured_ns + FRAME_INTERVAL_NS
+            self._latest_frame = (frame, captured_ns)
             self._condition.notify()
 
     def stop(self):
@@ -80,14 +79,15 @@ class RecognitionThread(QThread):
                 return
             if ready != "ready":
                 raise RuntimeError(ready[1])
-            confirmation = GestureConfirmation(CONFIRMATION_FRAMES)
+            confirmation = GestureConfirmation()
             last_update = WAITING_FOR_GESTURE
             self.update.emit(last_update)
 
             while True:
-                frame = self._take_frame()
-                if frame is None:
+                sample = self._take_frame()
+                if sample is None:
                     return
+                frame, captured_ns = sample
 
                 rgb = frame.convertToFormat(QImage.Format.Format_RGB888)
                 message = (rgb.width(), rgb.height(), rgb.bytesPerLine(), bytes(rgb.constBits()))
@@ -104,11 +104,16 @@ class RecognitionThread(QThread):
                 _, gesture, face_detected, scores, milliseconds, pixels, model_label, metadata = prediction
                 if self.stopping:
                     return
-                self.diagnostic.emit({"scores": scores, "milliseconds": milliseconds,
-                                      "pixels": pixels, "face_detected": face_detected,
-                                      "model_label": model_label, **metadata})
-                state = confirmation.update(gesture, face_detected)
+                if monotonic_ns() - captured_ns > MAX_SAMPLE_GAP_NS:
+                    confirmation.reset()
+                    state = WAITING_FOR_GESTURE
+                else:
+                    self.diagnostic.emit({"scores": scores, "milliseconds": milliseconds,
+                                          "pixels": pixels, "face_detected": face_detected,
+                                          "model_label": model_label, **metadata})
+                    state = confirmation.update(gesture, face_detected, captured_ns)
 
+                self.progress.emit(confirmation.progress)
                 if state != last_update:
                     self.update.emit(state)
                     last_update = state

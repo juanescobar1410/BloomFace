@@ -1,52 +1,57 @@
 # BloomFace
 
-BloomFace es el proyecto final de Procesamiento Digital de Imágenes de Catalina Ortiz González, Juan Andrés Escobar Sánchez y Juan David Romero Rada en la Universidad Autónoma de Occidente.
+**Creación visual a partir de gestos faciales y composiciones florales.** Proyecto final de Procesamiento Digital de Imágenes de la Universidad Autónoma de Occidente, en el marco del macroproyecto **Análisis de la Expresión Humana en el Arte y la Cultura**.
 
-La aplicación de escritorio para Windows permitirá que una persona use la webcam para componer una flor con cuatro gestos visibles. En la muestra, la clasificación y la composición se ejecutarán en el PC.
+BloomFace propone una experiencia artística local en la que la persona participa mediante movimientos visibles de su rostro. El sistema vincula esos gestos con etapas de apertura de una flor y genera una respuesta visual mediante modelos preentrenados.
 
-| Gesto | Transformación |
+**Autores:** Catalina Ortiz González, Juan Andrés Escobar Sánchez y Juan David Romero Rada.
+
+Esta versión incorpora la **documentación, la organización de archivos y la preparación de ejecución revisadas después del merge del 23 de noviembre de 2026**. Los cambios se revisaron primero en una copia y se integraron en el repositorio con autorización del equipo. El detalle de cambios y las verificaciones están en [registro de revisión e integración](docs/revision.md).
+
+![Pantalla de bienvenida de la versión revisada](docs/evidencias/01_bienvenida.png)
+
+## Qué hace
+
+La aplicación de escritorio para Windows recibe la webcam, obtiene señales de movimiento con MediaPipe Face Landmarker y confirma un gesto tras tres segundos continuos. Stable Diffusion 1.5, ControlNet Scribble y LCM-LoRA generan una acuarela. Se toma **un gesto por ronda**; al mostrar la flor se pausa y el botón **Iniciar** permite otra ronda.
+
+| Gesto | Etapa floral |
 |---|---|
-| Reposo | Apertura intermedia y escala base. |
-| Sonrisa | Apertura completa y escala base. |
-| Boca abierta | Conserva la apertura visible al confirmar y aumenta la escala hasta un tamaño fijo. |
-| Ceño fruncido | Cierra la flor y vuelve a la escala base. |
+| Ceño fruncido | Cerrada |
+| Reposo | Punto medio |
+| Sonrisa | Abierta |
+| Boca abierta | Más abierta |
 
-## Estado del proyecto
+La interfaz, las animaciones, las reglas de interacción y el generador proceden del código del merge. La revisión añade preparación del entorno floral y organiza la documentación; no cambia los umbrales ni las guías.
 
-La aplicación de Windows usa exclusivamente **MediaPipe Face Landmarker** para reconocer los cuatro gestos; no carga la CNN del Parcial 2 ni LibreFace. El generador floral está integrado y queda desactivado por defecto tras dos apagados durante las pruebas de la Radeon. En este modo se puede probar la webcam y el reconocimiento usando CPU.
+## Abrir el proyecto
 
-## Ejecutar en Windows
+1. Abre **la carpeta completa del proyecto** en VS Code para evitar ejecutar otra copia del proyecto.
+2. Abre `BloomFace_Instalar_y_Probar.ipynb`.
+3. Selecciona un kernel Python local funcional. Si VS Code solicita `ipykernel`, acepta instalarlo. El notebook necesita ese kernel para ejecutar su primera celda.
+4. Pulsa **Run All / Ejecutar todo** y espera a que termine la preparación. Obtendrá Python 3.12 si hace falta, instalará los dos entornos y descargará los modelos públicos. La primera vez requiere Internet y varios GB de disco.
+5. En BloomFace pulsa **INICIAR → flecha → Iniciar**. Mantén un gesto tres segundos y espera la acuarela. Después pulsa **Iniciar** para otra flor.
 
-Abre la carpeta completa del repositorio en VS Code local y ejecuta **Run All / Ejecutar todo** en `BloomFace_Instalar_y_Probar.ipynb`. Puedes usar cualquier kernel Python local funcional: la primera celda crea o reutiliza el entorno compatible de la aplicación, instala dependencias y descarga y verifica el modelo. Si el Python del kernel no es compatible, obtiene Python 3.12 automáticamente mediante uv. Después abre BloomFace. No usa rutas de un equipo concreto ni requiere un kernel llamado BloomFace. Necesita Internet la primera vez.
+Las siguientes ejecuciones reutilizan los recursos. DirectML intenta usar una GPU compatible; la aplicación recupera el gesto vigente en CPU si la GPU falla o supera el tiempo de espera. CPU puede tardar bastante más. El sistema requiere memoria y controladores suficientes; no se garantiza la misma velocidad en cualquier equipo. Consulta [instalación y solución de problemas](docs/instalacion.md).
 
-Requisitos previos del notebook: Windows de 64 bits, VS Code con extensiones Python y Jupyter y un kernel Python con `ipykernel`. Si VS Code ofrece instalar ipykernel antes de ejecutar, acepta **Instalar**; ninguna celda puede instalar su propio kernel antes de empezar a ejecutarse. La preparación de la aplicación ocurre en `.venv` y no instala MediaPipe en el entorno del kernel. [Gestión automática de Python con uv](https://docs.astral.sh/uv/guides/install-python/).
+## Documentación del proyecto
 
-Al abrirse la aplicación, pulsa **Iniciar** para ver las instrucciones. **Continuar** abre la pantalla principal y activa la cámara; todavía no inicia el reconocimiento. Ajusta el encuadre y pulsa **Iniciar** para comenzar a reconocer gestos. **Pausar** detiene el reconocimiento y **Reanudar** lo inicia de nuevo. **Finalizar** cierra la aplicación.
+| Contenido solicitado | Documento |
+|---|---|
+| Problemática, justificación, objetivos y solución | [Descripción del proyecto](docs/proyecto.md) |
+| Técnicas de PDI y visión computacional implementadas | [Correspondencia técnica](docs/metodologia.md#técnicas-de-procesamiento-de-imágenes-y-visión-computacional) |
+| Fundamento artístico y fuentes técnicas | [Referencias](docs/referencias.md) |
+| Componentes, conexiones y funcionamiento | [Arquitectura y diagramas](docs/arquitectura.md) |
+| Etapas de desarrollo, técnicas y modelos | [Metodología e implementación](docs/metodologia.md) |
+| Datos, recursos, procedencia y acceso | [Datos y modelos](docs/datos.md) |
+| Prototipo, funciones, uso y evidencias | [Interfaz y manual](docs/interfaz.md) |
+| Pruebas, métricas, resultados y análisis | [Resultados](docs/resultados.md) y [verificación reproducible](docs/verificacion.md) |
+| Resultados principales, límites y mejoras | [Conclusiones](docs/conclusiones.md) |
+| Cobertura de los requisitos de la imagen | [Lista de entrega](docs/entrega.md) |
 
-El único recurso facial requerido es `bloomface/models/mediapipe/face_landmarker.task`. Está fuera de Git y el notebook lo descarga si falta. No se necesitan `gestos_parcial2.pt`, `preprocesamiento.json` ni el XML Haar. No hay selector de modelos, entrenamiento ni calibración de la CNN. Las intensidades de sonrisa, mandíbula y cejas no son probabilidades. Consulta [MEDIAPIPE.md](MEDIAPIPE.md) para entender las reglas, límites y comprobaciones.
+## Ejecutable portátil y desarrollo
 
-También se puede ejecutar `python preparar_mediapipe.py` y después `python -m bloomface` desde el entorno local. El reconocimiento funciona en CPU y en un proceso separado de la interfaz.
+La carpeta de código **no incluye un `BloomFace.exe` ni un ZIP portátil**. Las instrucciones para usar un portátil completo o construirlo están en [instalación](docs/instalacion.md). El paquete de distribución debe identificarse por su versión y verificarse en el equipo de entrega. Los recursos grandes quedan fuera del código fuente y los prepara el notebook.
 
-## Interfaz y estados
+El código se organiza en `bloomface/`, el cuaderno floral activo en `notebooks/` y las pruebas en `tests/`. Los experimentos anteriores y la bitácora original se conservan en [antecedentes](docs/antecedentes/README.md). Los pesos y entornos se generan en `.venv/`, `bloomface/models/` y `floral_runtime/`, excluidos de Git.
 
-La interfaz tiene una pantalla de bienvenida, una pantalla de instrucciones y la pantalla principal. La cámara se abre al pulsar **Continuar**; el reconocimiento empieza únicamente al pulsar **Iniciar** en la pantalla principal. La vista principal muestra la cámara a la izquierda y deja el panel **Tu composición** disponible para la imagen generada.
-
-El estado aparece en la etiqueta de la esquina superior derecha, por ejemplo **Vista Previa**, **Esperando gesto estable**, **Gesto estable: Sonrisa**, **En pausa** o **Rostro no detectado**. El recorte diagnóstico y las intensidades del modelo ya no se muestran en la interfaz. El aviso de rostro no detectado aparece tras tres muestras seguidas sin rostro y se quita después de dos detecciones seguidas. Los errores de cámara aparecen en el mismo panel bajo la vista de cámara e incluyen **Reintentar** y **Finalizar**.
-
-Los botones **Ajustar reposo** y **Restablecer referencia** se conservan bajo la vista de cámara. Para fijar la referencia, inicia el reconocimiento, pulsa **Ajustar reposo** y mantén boca y cejas relajadas durante 16 muestras válidas. **Restablecer referencia** elimina el ajuste y detiene el reconocimiento; vuelve a pulsar **Iniciar** para comenzar otra vez.
-
-El logo original está en `bloomface/assets/brand/BloomFace_Logo.svg`; la aplicación y el empaquetado usan su versión PNG transparente en `bloomface/assets/brand/BloomFace_Logo.png`. En ejecución local, la aplicación carga Agrandir desde `agrandir-font-family` si están disponibles `Agrandir-Regular.otf` y `Agrandir-TextBold.otf`. El archivo de licencia incluido indica uso personal únicamente; las fuentes no se agregan al paquete ejecutable.
-
-## Generación floral
-
-El cuaderno `notebooks/BloomFace_Generacion_Floral.ipynb` conserva las cuatro guías y permite probar la generación en Colab. La aplicación solicita una acuarela al confirmar un gesto. El proceso floral usa la guía correspondiente y devuelve la imagen en memoria. Si se pierde el rostro, se pausa o se confirma un gesto más reciente, se descarta la respuesta que haya quedado pendiente.
-
-Para una futura validación en Windows, el generador requiere un entorno separado con `requirements-floral.txt` y los pesos públicos FP16 de SD 1.5 y ControlNet Scribble, además de LCM-LoRA. Usa `BLOOMFACE_FLORAL_RUNTIME` para señalar una carpeta con `venv/Scripts/python.exe` y pesos locales en `weights/sd15`, `weights/scribble` y `weights/lcm`. Esta versión de DirectML se probó con una RX 6600 XT. El interruptor `BLOOMFACE_ENABLE_LOCAL_GENERATOR=1` habilita el proceso cuando se decida retomar la validación del equipo.
-
-Los resultados y las decisiones están en [CONTEXTO_BLOOMFACE.md](CONTEXTO_BLOOMFACE.md).
-
-## Trabajo en equipo
-
-Abrir la carpeta en GitHub Desktop mediante **File → Add local repository**. Antes del primer commit, verificar la cuenta y la identidad de Git. Los datos faciales se conservan fuera del repositorio y se comparten con los permisos acordados por el equipo.
-
-Los notebooks originales de generación floral y LibreFace se conservan como antecedentes académicos; el notebook de LibreFace no es una ruta de ejecución de la aplicación.
+La documentación distingue los resultados históricos del proyecto, las comprobaciones de esta copia y las pruebas con participantes aún pendientes. El 97,92 % de la CNN anterior corresponde a ese experimento, no a MediaPipe.

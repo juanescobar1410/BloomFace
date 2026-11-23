@@ -17,9 +17,12 @@ from PySide6.QtWidgets import (
 )
 
 from bloomface.camera import CameraThread
+from bloomface.camera_preview import CameraPreview
 from bloomface.classifier import NEUTRAL_PATH
+from bloomface.composition_view import CompositionView
 from bloomface.floral import FloralProcess
-from bloomface.recognition import NO_FACE, WAITING_FOR_GESTURE, RecognitionThread
+from bloomface.decision import NO_FACE, WAITING_FOR_GESTURE
+from bloomface.recognition import RecognitionThread
 
 
 PROJECT_ROOT = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parents[1]))
@@ -167,6 +170,7 @@ class BloomFaceWindow(QWidget):
         self._recognition = None
         self._closing = False
         self._paused = False
+        self._flower_requested = False
         self._neutral_calibrating = False
         self._return_to_instructions = False
         self._resume_after_stop = False
@@ -182,6 +186,7 @@ class BloomFaceWindow(QWidget):
         self._generator = FloralProcess(self)
         self._generator.status.connect(self._show_floral_status)
         self._generator.image_ready.connect(self._show_generated)
+        self._generator.failed.connect(self._show_floral_failure)
         self._generator.stopped.connect(self._finish_close)
 
         self._screens = QStackedWidget(self)
@@ -229,7 +234,7 @@ class BloomFaceWindow(QWidget):
         instruction.setAlignment(Qt.AlignmentFlag.AlignCenter)
         instruction.setStyleSheet("font-size:22px;")
 
-        camera_mock = QLabel("Ubícate dentro del encuadre\n\nAsegúrate de que se vean tus cejas y tu boca")
+        camera_mock = QLabel("Ubícate dentro del encuadre\n\nAsegúrate de que se vean tus cejas y tu boca\nMantén el gesto durante 3 segundos\nPulsa Iniciar para la siguiente flor")
         camera_mock.setObjectName("cameraView")
         camera_mock.setAlignment(Qt.AlignmentFlag.AlignCenter)
         camera_mock.setWordWrap(True)
@@ -287,14 +292,14 @@ class BloomFaceWindow(QWidget):
 
         panels = QHBoxLayout()
         panels.setSpacing(26)
-        self._preview = QLabel("Abriendo cámara…")
+        self._preview = CameraPreview("Abriendo cámara…")
         self._preview.setObjectName("cameraView")
         self._preview.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._preview.setWordWrap(True)
         self._preview.setMinimumSize(320, 260)
         self._preview.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Expanding)
 
-        self._flower_view = QLabel("La flor aparecerá aquí.")
+        self._flower_view = CompositionView(LOGO_PATH)
         self._flower_view.setObjectName("compositionView")
         self._flower_view.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._flower_view.setWordWrap(True)
@@ -351,10 +356,11 @@ class BloomFaceWindow(QWidget):
 
     def _build_preview_actions(self):
         row, layout = self._action_row()
+        self._preview_actions_layout = layout
         self._start_recognition_button = QPushButton("Iniciar")
         self._start_recognition_button.setObjectName("primary")
         self._start_recognition_button.setMinimumWidth(176)
-        self._start_recognition_button.clicked.connect(self._start_recognition)
+        self._start_recognition_button.clicked.connect(self._begin_flower_round)
         back = QPushButton("Volver")
         back.setObjectName("secondary")
         back.setMinimumWidth(176)
@@ -377,15 +383,16 @@ class BloomFaceWindow(QWidget):
 
     def _build_paused_actions(self):
         row, layout = self._action_row()
-        resume = QPushButton("Reanudar")
-        resume.setObjectName("primary")
-        resume.setMinimumWidth(176)
-        resume.clicked.connect(self._toggle_pause)
+        self._paused_actions_layout = layout
+        self._resume_button = QPushButton("Reanudar")
+        self._resume_button.setObjectName("primary")
+        self._resume_button.setMinimumWidth(176)
+        self._resume_button.clicked.connect(self._toggle_pause)
         finish = QPushButton("Finalizar")
         finish.setObjectName("secondary")
         finish.setMinimumWidth(176)
         finish.clicked.connect(self.close)
-        layout.addWidget(resume)
+        layout.addWidget(self._resume_button)
         layout.addSpacing(18)
         layout.addWidget(finish)
         layout.addStretch(1)
@@ -427,6 +434,7 @@ class BloomFaceWindow(QWidget):
             "preview": "Vista Previa",
             "waiting": "Esperando gesto estable",
             "paused": "En pausa",
+            "next_flower": "En pausa",
             "camera_error": "Cámara no disponible",
             "recognition_error": "Error de reconocimiento",
         }
@@ -434,9 +442,15 @@ class BloomFaceWindow(QWidget):
         if status_text is not None:
             self._status_message.setText(status_text)
         action_indices = {
-            "preview": 0, "waiting": 1, "paused": 2,
+            "preview": 0, "waiting": 1, "paused": 2, "next_flower": 2,
             "camera_error": 3, "recognition_error": 3,
         }
+        next_flower = state == "next_flower"
+        start_layout = self._paused_actions_layout if next_flower else self._preview_actions_layout
+        if start_layout.indexOf(self._start_recognition_button) < 0:
+            start_layout.insertWidget(1, self._start_recognition_button)
+            self._start_recognition_button.show()
+        self._resume_button.setVisible(not next_flower)
         self._actions.setCurrentIndex(action_indices.get(state, 0))
 
     def _set_error_banner(self, message):
@@ -470,14 +484,14 @@ class BloomFaceWindow(QWidget):
         if not hasattr(self, "_start_recognition_button"):
             return
         self._start_recognition_button.setEnabled(
-            not self._paused and not self._closing and self._camera_has_frame
-            and self._recognition is None
+            not self._closing and self._camera_has_frame
+            and (self._view_state == "next_flower" or (not self._paused and self._recognition is None))
         )
+        can_calibrate = not self._paused and not self._closing and not self._flower_requested
         self._adjust_neutral.setEnabled(
-            not self._paused and not self._closing
-            and self._recognition is not None and not self._recognition.stopping
+            can_calibrate and self._recognition is not None and not self._recognition.stopping
         )
-        self._reset_neutral.setEnabled(not self._paused and not self._closing)
+        self._reset_neutral.setEnabled(can_calibrate)
 
     @Slot()
     def _calibrate_neutral(self):
@@ -503,7 +517,7 @@ class BloomFaceWindow(QWidget):
 
     @Slot(object)
     def _show_diagnostic(self, result):
-        if (self._paused or self._closing or self._recognition is None
+        if (self._paused or self._closing or self._flower_requested or self._recognition is None
                 or self.sender() is not self._recognition or self._recognition.stopping):
             return
 
@@ -514,7 +528,7 @@ class BloomFaceWindow(QWidget):
                 self._banner_kind = None
                 self._camera_error_banner.clear()
                 self._camera_error_banner.hide()
-                self._set_view_state("waiting", "Mantén un gesto hasta que la flor responda")
+                self._set_view_state("waiting", "Mantén el gesto durante 3 segundos")
         else:
             self._no_face_samples += 1
             self._face_samples = 0
@@ -540,6 +554,14 @@ class BloomFaceWindow(QWidget):
         super().resizeEvent(event)
         self._draw_flower()
 
+    @Slot(float)
+    def _show_gesture_progress(self, progress):
+        recognition = self._recognition
+        if (self._paused or self._closing or self._flower_requested or recognition is None
+                or self.sender() is not recognition or recognition.stopping):
+            return
+        self._preview.set_gesture_progress(progress)
+
     @Slot(str)
     def _show_floral_status(self, message):
         if not self._paused and not self._closing and message:
@@ -547,26 +569,51 @@ class BloomFaceWindow(QWidget):
 
     @Slot(QImage, float)
     def _show_generated(self, image, seconds):
-        if self._paused or self._closing:
+        if self._paused or self._closing or not self._flower_requested:
             return
         self._generated = image
         self._draw_flower()
-        self._status_message.setText(f"Nueva acuarela · {seconds:.1f} s")
+        self._pause_session("next_flower", f"Nueva acuarela · {seconds:.1f} s · Pulsa Iniciar para otra flor")
+
+    @Slot(str)
+    def _show_floral_failure(self, message):
+        if not self._paused and not self._closing and self._flower_requested:
+            self._preview.set_gesture_progress(0.0)
+            self._pause_session("next_flower", message)
+
+    def _pause_session(self, state, message):
+        self._flower_view.set_loading(False)
+        self._paused = True
+        if state == "paused":
+            self._preview.set_gesture_progress(0.0)
+        self._flower_requested = False
+        self._neutral_calibrating = False
+        self._resume_after_stop = False
+        self._generator.invalidate()
+        self._refresh.stop()
+        if self._recognition is not None:
+            self._recognition.stop()
+        self._set_view_state(state, message)
+        self._update_controls()
+
+    @Slot()
+    def _begin_flower_round(self):
+        if self._view_state == "next_flower":
+            self._toggle_pause()
+        else:
+            self._start_recognition()
 
     @Slot()
     def _toggle_pause(self):
         if not self._paused:
-            self._paused = True
-            self._resume_after_stop = False
-            self._generator.invalidate()
-            self._refresh.stop()
-            if self._recognition is not None:
-                self._recognition.stop()
-            self._set_view_state("paused", "La composición se conserva en pantalla")
+            self._pause_session("paused", "La composición se conserva en pantalla")
             return
         self._paused = False
+        self._preview.set_gesture_progress(0.0)
         self._resume_after_stop = True
-        self._set_view_state("waiting", "Mantén un gesto hasta que la flor responda")
+        self._set_view_state("waiting", "Mantén el gesto durante 3 segundos")
+        if self._camera is not None:
+            self._camera.take_frame()
         self._refresh.start()
         if self._recognition is None and self._camera_has_frame:
             self._resume_after_stop = False
@@ -576,12 +623,12 @@ class BloomFaceWindow(QWidget):
     def _start_recognition(self):
         if self._recognition is not None or not self._camera_has_frame or self._paused:
             return
+        self._set_view_state("waiting", "Mantén el gesto durante 3 segundos")
         self._generator.start()
-        self._status_message.setText("Mantén un gesto hasta que la flor responda")
-        self._set_view_state("waiting")
         self._recognition = RecognitionThread(self)
         self._recognition.update.connect(self._handle_recognition_update)
         self._recognition.diagnostic.connect(self._show_diagnostic)
+        self._recognition.progress.connect(self._show_gesture_progress)
         self._recognition.finished.connect(self._recognition_finished)
         self._recognition.start()
         self._update_controls()
@@ -589,22 +636,28 @@ class BloomFaceWindow(QWidget):
     @Slot(str)
     def _handle_recognition_update(self, state):
         recognition = self._recognition
-        if recognition is None or self.sender() is not recognition or recognition.stopping:
+        if (self._paused or self._closing or self._flower_requested or recognition is None
+                or self.sender() is not recognition or recognition.stopping):
             return
         if state == NO_FACE:
             self._generator.invalidate()
-            self._set_view_state("waiting", "Ubícate dentro del encuadre y mantén un gesto claro")
+            self._set_view_state("waiting", "Ubícate dentro del encuadre y mantén el gesto durante 3 segundos")
             if self._banner_kind == "no_face":
                 self._state_pill.setText("Rostro no detectado")
         elif state == WAITING_FOR_GESTURE:
             if self._banner_kind == "no_face":
                 self._state_pill.setText("Rostro no detectado")
             elif not self._neutral_calibrating:
-                self._set_view_state("waiting", "Mantén un gesto hasta que la flor responda")
+                self._set_view_state("waiting", "Mantén el gesto durante 3 segundos")
         else:
             label = GESTURES[state]
-            self._set_view_state("waiting", "Cambia de gesto para continuar o pausa para conservar la vista")
-            self._state_pill.setText(f"Gesto estable: {label}")
+            self._preview.set_gesture_progress(1.0)
+            self._flower_requested = True
+            self._set_view_state("waiting", "Preparando acuarela…")
+            self._state_pill.setText(f"Gesto confirmado: {label}")
+            self._update_controls()
+            if self._generated is None:
+                self._flower_view.set_loading(True)
             self._generator.request(state)
 
     @Slot()
@@ -623,6 +676,9 @@ class BloomFaceWindow(QWidget):
             self._resume_after_stop = False
             self._start_recognition()
         elif error and self._camera_has_frame and not self._paused:
+            self._flower_view.set_loading(False)
+            self._preview.set_gesture_progress(0.0)
+            self._flower_requested = False
             self._generator.invalidate()
             self._show_error(f"No se pudo iniciar el reconocimiento. {error}", self._start_recognition, camera_error=False)
         self._update_controls()
@@ -631,6 +687,7 @@ class BloomFaceWindow(QWidget):
     def _start_camera(self):
         if self._camera is not None or self._closing:
             return
+        self._preview.set_gesture_progress(0.0)
         self._banner_kind = None
         self._no_face_samples = 0
         self._face_samples = 0
@@ -647,21 +704,25 @@ class BloomFaceWindow(QWidget):
     def _show_latest_frame(self):
         if self._camera is None:
             return
-        frame = self._camera.take_frame()
-        if frame is None:
+        sample = self._camera.take_frame()
+        if sample is None:
             return
+        frame, captured_ns = sample
         _display_image(self._preview, frame)
         if not self._camera_has_frame:
             self._camera_has_frame = True
             if self._view_state == "preview":
                 self._status_message.setText("Ajusta el encuadre antes de iniciar")
             self._update_controls()
-        if self._recognition is not None:
-            self._recognition.submit_frame(frame)
+        if self._recognition is not None and not self._flower_requested:
+            self._recognition.submit_frame(frame, captured_ns)
 
     @Slot()
     def _camera_finished(self):
+        self._flower_view.set_loading(False)
         self._refresh.stop()
+        self._preview.set_gesture_progress(0.0)
+        self._flower_requested = False
         self._generator.invalidate()
         camera = self._camera
         self._camera = None
@@ -678,9 +739,8 @@ class BloomFaceWindow(QWidget):
             self._return_to_instructions = False
             self._screens.setCurrentWidget(self._instructions_page)
             return
-        if self._paused:
-            return
         if error:
+            self._paused = False
             self._preview.setText("Cámara no disponible")
             self._show_error(error, self._start_camera, camera_error=True)
         self._update_controls()
@@ -690,6 +750,7 @@ class BloomFaceWindow(QWidget):
             self.close()
 
     def closeEvent(self, event):
+        self._flower_view.set_loading(False)
         if self._camera is not None or self._recognition is not None or self._generator.running:
             self._closing = True
             self._refresh.stop()

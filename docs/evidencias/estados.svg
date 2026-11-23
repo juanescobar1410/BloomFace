@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630"><defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#5b6370"/></marker></defs><rect width="1200" height="630" fill="#faf9f5"/>
+<text x="30" y="30" font-family="Arial" font-size="23" font-weight="bold" fill="#743058">BloomFace · recorrido por rondas</text>
+<text x="30" y="54" font-family="Arial" font-size="14" fill="#56614e">Estados principales; el resultado queda conservado hasta iniciar otra ronda</text>
+<rect x="25" y="90" width="250" height="90" rx="14" fill="#f1e6ee" stroke="#bcaeb9"/>
+<text x="40" y="119" font-family="Arial" font-size="18" font-weight="bold" fill="#34343b">Bienvenida</text>
+<text x="40" y="143" font-family="Arial" font-size="14" fill="#34343b">INICIAR</text>
+<rect x="325" y="90" width="250" height="90" rx="14" fill="#f1e6ee" stroke="#bcaeb9"/>
+<text x="340" y="119" font-family="Arial" font-size="18" font-weight="bold" fill="#34343b">Instrucciones</text>
+<text x="340" y="143" font-family="Arial" font-size="14" fill="#34343b">Flecha hacia encuadre</text>
+<rect x="625" y="90" width="250" height="90" rx="14" fill="#f1e6ee" stroke="#bcaeb9"/>
+<text x="640" y="119" font-family="Arial" font-size="18" font-weight="bold" fill="#34343b">Encuadre</text>
+<text x="640" y="143" font-family="Arial" font-size="14" fill="#34343b">Cámara y controles</text>
+<rect x="925" y="90" width="250" height="90" rx="14" fill="#f1e6ee" stroke="#bcaeb9"/>
+<text x="940" y="119" font-family="Arial" font-size="18" font-weight="bold" fill="#34343b">Espera de gesto</text>
+<text x="940" y="143" font-family="Arial" font-size="14" fill="#34343b">Tres segundos estables</text>
+<polyline points="275,135 325,135" fill="none" stroke="#5b6370" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="575,135 625,135" fill="none" stroke="#5b6370" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="875,135 925,135" fill="none" stroke="#5b6370" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="625" y="310" width="250" height="110" rx="14" fill="#e6edf6" stroke="#bcaeb9"/>
+<text x="640" y="339" font-family="Arial" font-size="18" font-weight="bold" fill="#34343b">Generando</text>
+<text x="640" y="363" font-family="Arial" font-size="14" fill="#34343b">Una expresión por ronda</text>
+<text x="640" y="385" font-family="Arial" font-size="14" fill="#34343b">Otros gestos se ignoran</text>
+<rect x="925" y="310" width="250" height="110" rx="14" fill="#eaf0e4" stroke="#bcaeb9"/>
+<text x="940" y="339" font-family="Arial" font-size="18" font-weight="bold" fill="#34343b">Resultado / pausa</text>
+<text x="940" y="363" font-family="Arial" font-size="14" fill="#34343b">Conservar la composición</text>
+<text x="940" y="385" font-family="Arial" font-size="14" fill="#34343b">Iniciar otra ronda</text>
+<rect x="25" y="310" width="250" height="110" rx="14" fill="#efeee6" stroke="#bcaeb9"/>
+<text x="40" y="339" font-family="Arial" font-size="18" font-weight="bold" fill="#34343b">Pausa manual</text>
+<text x="40" y="363" font-family="Arial" font-size="14" fill="#34343b">Cancelar solicitud pendiente</text>
+<text x="40" y="385" font-family="Arial" font-size="14" fill="#34343b">Reanudar desde encuadre</text>
+<polyline points="1000,180 1000,245 750,245 750,310" fill="none" stroke="#5b6370" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="775" y="233" font-family="Arial" font-size="13" fill="#5b6370">gesto confirmado</text>
+<polyline points="875,365 925,365" fill="none" stroke="#5b6370" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="1130,310 1130,180" fill="none" stroke="#5b6370" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="1138" y="251" font-family="Arial" font-size="13" fill="#5b6370">Iniciar</text>
+<polyline points="950,180 950,215 150,215 150,310" fill="none" stroke="#5b6370" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="335" y="204" font-family="Arial" font-size="13" fill="#5b6370">Pausar</text>
+<polyline points="150,420 150,470 600,470 600,200 750,200 750,180" fill="none" stroke="#5b6370" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="305" y="458" font-family="Arial" font-size="13" fill="#5b6370">Reanudar</text>
+<rect x="25" y="530" width="550" height="75" rx="14" fill="#faf1e4" stroke="#bcaeb9"/>
+<text x="40" y="559" font-family="Arial" font-size="18" font-weight="bold" fill="#34343b">Interrupción antes de confirmar</text>
+<text x="40" y="583" font-family="Arial" font-size="14" fill="#34343b">Rostro ausente, cambio, mezcla o salto de muestras: reiniciar espera.</text>
+<rect x="625" y="530" width="550" height="75" rx="14" fill="#faf1e4" stroke="#bcaeb9"/>
+<text x="640" y="559" font-family="Arial" font-size="18" font-weight="bold" fill="#34343b">Fallo de generación</text>
+<text x="640" y="583" font-family="Arial" font-size="14" fill="#34343b">Mantener imagen anterior y ofrecer Iniciar para otro intento.</text>
+</svg>
