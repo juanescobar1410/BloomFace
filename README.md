@@ -70,6 +70,8 @@ El promedio del grupo registrado como CPU fue **3,86 veces** el del grupo con GP
 
 El [análisis detallado](docs/resultados.md#evaluación-exploratoria-con-cinco-participantes) incluye el protocolo, las fuentes y las limitaciones. Se conserva una [instantánea de los 20 registros](docs/evidencias/validacion_participantes_2026-11-23.json). No se publica un promedio de primera carga: la celda J18 de la hoja fuente está guardada como fecha, no como segundos, y debe corregirse antes de calcularlo.
 
+Durante la revisión visual, el equipo señaló que las imágenes asociadas a **boca abierta (etapa más abierta)** resultaban más extrañas que las de las otras etapas. Esta es una observación cualitativa: no se registró una valoración estética por intento ni una frecuencia de esa percepción. El cumplimiento de la etapa esperada no implica que la imagen tenga una calidad visual satisfactoria.
+
 ## Conclusiones
 
 Los 20 intentos registrados respaldan el funcionamiento del recorrido gesto–generación–etapa floral en las condiciones ensayadas. Las sesiones anotadas con GPU dedicada presentaron menor tiempo de espera; P4 completó las mismas funciones con una espera mayor. La experiencia necesita comunicar la carga inicial y conservar una indicación de progreso durante la generación. Estas conclusiones se limitan a la prueba exploratoria; el desarrollo y las oportunidades de mejora están en [conclusiones del proyecto](docs/conclusiones.md).
@@ -81,6 +83,8 @@ Los 20 intentos registrados respaldan el funcionamiento del recorrido gesto–ge
 - Falta confirmar el backend efectivo de P4 y completar las condiciones de iluminación, encuadre y hardware.
 - La medición temporal de J18 necesita corrección; las marcas de primera carga deben conservarse y verificarse por sesión. El promedio conjunto de CPU y GPU no representa la espera de un equipo concreto.
 - La correspondencia de etapas fue registrada por el equipo; no mide por sí sola calidad artística, usabilidad o respuesta ante fallos. Los enlaces a evidencias audiovisuales de estos intentos están pendientes.
+
+- El equipo identificó una oportunidad de mejora visual en las imágenes de boca abierta. Se propone revisar sus guías y descripciones, y comparar varias generaciones; la causa de esa apariencia aún no está determinada.
 
 ## Ejecutable portátil y desarrollo
 

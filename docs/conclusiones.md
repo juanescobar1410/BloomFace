@@ -16,6 +16,8 @@ Las pruebas automatizadas y las comprobaciones técnicas complementan el registr
 
 La muestra no establece precisión general del reconocedor, calidad artística de todas las imágenes ni estabilidad entre repeticiones. Las mediciones de CNN y LibreFace permanecen asociadas a sus experimentos históricos y no se combinan con los 20 intentos de la versión actual.
 
+Durante la revisión visual, el equipo señaló que las imágenes asociadas a **boca abierta (etapa más abierta)** resultaban más extrañas que las de las otras etapas. Esta es una observación cualitativa: no se registró una valoración estética por intento ni una frecuencia de esa percepción. El cumplimiento de la etapa esperada no implica que la imagen tenga una calidad visual satisfactoria.
+
 ## Limitaciones
 
 - La prueba incluye cinco personas y una repetición por gesto; los grupos son desiguales (16 intentos con GPU dedicada y cuatro en P4). Los umbrales de decisión necesitan evaluación con más personas, sesiones y condiciones de captura diferentes. El habla y las combinaciones de movimientos pueden producir otra clase o una abstención.
@@ -29,7 +31,7 @@ La muestra no establece precisión general del reconocedor, calidad artística d
 
 1. Ampliar la prueba de los cuatro gestos e incluir el habla, las mezclas y la ausencia de rostro con personas y sesiones reservadas, mediante matriz de confusión, recall, F1 macro y exactitud que contabilice los rechazos.
 2. Medir por separado carga, inferencia facial, confirmación, generación y tiempo total hasta la imagen visible, registrando hardware, memoria y condiciones de prueba.
-3. Registrar etapa, semilla, resolución, reintentos y aceptación por solicitud para analizar la diferenciación entre flores y su coherencia visual.
+3. Revisar las guías de contorno y las descripciones de boca abierta (etapa más abierta), cuya apariencia fue percibida por el equipo como más extraña. Comparar distintas semillas y registrar etapa, resolución, reintentos y aceptación visual para evaluar si los ajustes mejoran el resultado, sin asumir una causa antes de comprobarla.
 4. Revisar la experiencia con participantes para determinar si el encuadre, la indicación de progreso y la espera permiten comprender la relación entre gesto y resultado.
 5. Validar el paquete portátil en un Windows limpio y documentar la versión exacta entregada al profesor.
 

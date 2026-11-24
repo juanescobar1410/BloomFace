@@ -50,6 +50,12 @@ En `Registro!J18`, P5–ceño, Google Sheets muestra `22.8`, pero almacena una f
 
 La pestaña Condiciones sigue sin completar y la columna de enlaces a evidencias está vacía en los 20 registros consultados. Faltan modelos de CPU/GPU, RAM, condiciones de captura, ajustes de reposo y límites de espera. Los recuentos respaldan lo consignado por el equipo, pero esas ausencias limitan la reproducibilidad y la comprobación independiente.
 
+### Observación cualitativa de la etapa más abierta
+
+Durante la revisión visual, el equipo señaló que las imágenes asociadas a **boca abierta (etapa más abierta)** resultaban más extrañas que las de las otras etapas. Esta es una observación cualitativa: no se registró una valoración estética por intento ni una frecuencia de esa percepción. El cumplimiento de la etapa esperada no implica que la imagen tenga una calidad visual satisfactoria.
+
+La observación complementa los 20/20 casos de correspondencia registrados, sin cambiar esos recuentos. Como mejora, se propone revisar la guía de contorno y la descripción textual de esa etapa, comparar resultados con diferentes semillas y recoger valoraciones de claridad de la forma y aceptación visual. No se ha determinado si la apariencia procede de las guías, del texto de condicionamiento o de la variación propia del generador; estas son hipótesis para evaluar.
+
 ### Análisis y alcance
 
 La prueba respalda el recorrido funcional de los cuatro gestos en las sesiones registradas y muestra que el tiempo de respuesta es un factor relevante para la interacción. Los dos grupos completaron las funciones, con mayor espera en P4. La aplicación debe comunicar la carga y mantener el progreso visible; no puede prometer el mismo tiempo en cualquier PC.
