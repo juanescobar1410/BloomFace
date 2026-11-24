@@ -42,7 +42,7 @@ Desarrollar un sistema interactivo de creación visual que vincule gestos facial
 | Generación condicionada | Solicitud de la etapa correspondiente y entrega de una imagen válida | Mapa de cuatro etapas, guías incluidas y una generación CPU real de reposo en esta revisión; falta evaluar la calidad de las cuatro etapas en una misma campaña |
 | Integración y funcionamiento | Una imagen por ronda, controles, conservación de la composición y recuperación | Pruebas de interfaz y controlador, arranque del notebook y tiempo de una solicitud CPU; falta recorrido completo con webcam en los equipos de entrega |
 
-Esta correspondencia distingue las comprobaciones funcionales realizadas de las evaluaciones pendientes. Los objetivos no implican que ya exista una cifra de precisión del reconocedor actual. El detalle de las pruebas y mediciones se presenta en [resultados](resultados.md) y el procedimiento de evaluación en [verificación](verificacion.md).
+Esta correspondencia distingue las comprobaciones funcionales realizadas de las evaluaciones pendientes. Los objetivos no implican que ya exista una cifra de precisión del reconocedor actual. El detalle de las pruebas y mediciones se presenta en [resultados](resultados.md).
 
 ## Solución y alcance actual
 

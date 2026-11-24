@@ -44,9 +44,8 @@ La primera acuarela incluye la carga del modelo además de la generación de la 
 | Etapas de desarrollo, técnicas y modelos | [Metodología e implementación](docs/metodologia.md) |
 | Datos, recursos, procedencia y acceso | [Datos y modelos](docs/datos.md) |
 | Prototipo, funciones, uso y evidencias | [Interfaz y manual](docs/interfaz.md) |
-| Pruebas, métricas, resultados y análisis | [Resultados](docs/resultados.md) y [verificación](docs/verificacion.md) |
+| Pruebas, métricas, resultados y análisis | [Resultados](docs/resultados.md) |
 | Conclusiones, limitaciones y mejoras | [Conclusiones](docs/conclusiones.md) |
-| Cobertura de los requisitos de la imagen | [Lista de entrega](docs/entrega.md) |
 
 ## Video demostrativo y evidencias
 

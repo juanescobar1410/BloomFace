@@ -17,7 +17,7 @@ El planteamiento se sitúa en Análisis de la Expresión Humana en el Arte y la 
 
 ## Fuentes de referencia
 
-[Descripción](docs/proyecto.md), [referencias](docs/referencias.md), [arquitectura](docs/arquitectura.md), [metodología](docs/metodologia.md), [instalación](docs/instalacion.md), [datos](docs/datos.md), [resultados](docs/resultados.md), [revisión](docs/revision.md), [validación](docs/VALIDACION.md) y [bitácora histórica](docs/antecedentes/CONTEXTO_HISTORICO_2026-11-23.md).
+[Descripción](docs/proyecto.md), [referencias](docs/referencias.md), [arquitectura](docs/arquitectura.md), [metodología](docs/metodologia.md), [instalación](docs/instalacion.md), [datos](docs/datos.md), [resultados](docs/resultados.md) y [bitácora histórica](docs/antecedentes/CONTEXTO_HISTORICO_2026-11-23.md).
 
 ## Evaluación exploratoria registrada
 
@@ -25,4 +25,8 @@ El equipo consignó 20 intentos con cinco participantes: 20/20 reconocimientos, 
 
 ## Pendientes
 
-Ampliar la evaluación exploratoria del reconocedor con más personas y condiciones, completar las evidencias y especificaciones de los ensayos, y validar un paquete portátil en otro Windows. La documentación registra resultados anteriores con su procedencia; no les atribuye precisión al modelo actual. La integración conserva el historial Git. No se ha hecho commit ni push. No se implementó el modo de evaluación propuesto posteriormente en el chat.
+Ampliar la evaluación exploratoria del reconocedor con más personas y condiciones, completar las evidencias y especificaciones de los ensayos, y validar un paquete portátil en otro Windows. La integración conserva el historial Git. No se ha hecho commit ni push. No se implementó el modo de evaluación propuesto posteriormente en el chat.
+
+## Limpieza de documentación · 24 de noviembre de 2026
+
+Se retiraron cuatro documentos auxiliares y sus enlaces de los Markdown. El documento de resultados conserva el ensayo con cinco participantes, las métricas, las evidencias y el ejemplo CPU. Se retiró la tabla de experimentos históricos.

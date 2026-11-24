@@ -47,4 +47,4 @@ Cuando aparece la acuarela, la ronda termina en pausa. Pulsa el mismo **Iniciar*
 
 ## Fallos y limitaciones visibles
 
-Una pérdida de rostro muestra una indicación de encuadre. Un fallo de cámara permite reintentar. Un rechazo de generación conserva la imagen anterior y permite otra ronda. Cerrar libera la captura y los procesos. La revisión manual de estas situaciones se propone en [verificación](verificacion.md).
+Una pérdida de rostro muestra una indicación de encuadre. Un fallo de cámara permite reintentar. Un rechazo de generación conserva la imagen anterior y permite otra ronda. Cerrar libera la captura y los procesos.

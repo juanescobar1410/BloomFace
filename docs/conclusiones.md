@@ -14,7 +14,7 @@ Los tiempos sin primera carga promediaron 13,20 s en 12 mediciones anotadas con 
 
 Las pruebas automatizadas y las comprobaciones técnicas complementan el registro de participantes: cubren confirmación temporal, rondas, recuperación y conexión entre controlador y generador. La separación de procesos permite coordinar captura e interfaz durante una tarea costosa. El respaldo CPU amplía las opciones de ejecución, con una espera que debe comunicarse mediante indicaciones de carga y progreso.
 
-La muestra no establece precisión general del reconocedor, calidad artística de todas las imágenes ni estabilidad entre repeticiones. Las mediciones de CNN y LibreFace permanecen asociadas a sus experimentos históricos y no se combinan con los 20 intentos de la versión actual.
+La muestra no establece precisión general del reconocedor, calidad artística de todas las imágenes ni estabilidad entre repeticiones.
 
 Durante la revisión visual, el equipo señaló que las imágenes asociadas a **boca abierta (etapa más abierta)** resultaban más extrañas que las de las otras etapas. Esta es una observación cualitativa: no se registró una valoración estética por intento ni una frecuencia de esa percepción. El cumplimiento de la etapa esperada no implica que la imagen tenga una calidad visual satisfactoria.
 
