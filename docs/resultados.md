@@ -12,6 +12,13 @@ El equipo registró 20 intentos: cinco participantes identificados como P1–P5 
 
 Fuente: [registro del equipo en Google Sheets](https://docs.google.com/spreadsheets/d/1OFLhjNNrDSzu4YTQnhB6HBm7XOI1AeTvDD-IIqwWSMc), consultado el 23 de noviembre de 2026. La [instantánea local](evidencias/validacion_participantes_2026-11-23.json) conserva los valores originales y las advertencias de interpretación para reproducir los cálculos sin depender de cambios posteriores en la hoja. El acceso a la hoja depende de los permisos del equipo.
 
+### Video demostrativo y evidencias
+
+- [Video demostrativo](https://drive.google.com/drive/folders/1QnlKGPzSLxmXWYSKPR-9ky_ccc3YyCzO?usp=drive_link): carpeta con la demostración aportada por el equipo.
+- [Evidencias visuales de BloomFace](https://drive.google.com/drive/folders/1roSEUYetW253kGcOQmd0Q32GxQD35YFs?usp=sharing): carpeta con el material de evidencia aportado por el equipo.
+
+Estos enlaces fueron suministrados por el equipo para acompañar los resultados. La incorporación de las carpetas no constituye una revisión independiente de su contenido ni una comprobación de cada intento. Para facilitar la trazabilidad, se debe vincular cada registro con el archivo o momento de video correspondiente.
+
 ### Cumplimiento funcional observado
 
 | Indicador | Numerador / denominador | Resultado |
@@ -48,7 +55,7 @@ Hay cinco intentos marcados como primera generación: cuatro en el grupo GPU y u
 
 En `Registro!J18`, P5–ceño, Google Sheets muestra `22.8`, pero almacena una fecha con valor interno **46256** y formato `d.m`. No se interpreta ese número como segundos ni se reemplaza por 22,8 sin corregir el registro fuente. Por ello, el promedio de primeras generaciones mostrado en la hoja no es publicable. El dato de primera generación de P4 es 99,20 s; el error de J18 no afecta a los promedios sin primera carga ni a los recuentos funcionales.
 
-La pestaña Condiciones sigue sin completar y la columna de enlaces a evidencias está vacía en los 20 registros consultados. Faltan modelos de CPU/GPU, RAM, condiciones de captura, ajustes de reposo y límites de espera. Los recuentos respaldan lo consignado por el equipo, pero esas ausencias limitan la reproducibilidad y la comprobación independiente.
+En la consulta de los 20 registros, la pestaña Condiciones estaba sin completar y la columna de enlaces a evidencias estaba vacía. Posteriormente, el equipo proporcionó las carpetas de video y evidencias enlazadas arriba; queda pendiente la asociación de archivos o momentos de video con cada intento. Faltan modelos de CPU/GPU, RAM, condiciones de captura, ajustes de reposo y límites de espera. Los recuentos respaldan lo consignado por el equipo, pero esas ausencias limitan la reproducibilidad y la comprobación independiente.
 
 ### Observación cualitativa de la etapa más abierta
 
@@ -60,7 +67,7 @@ La observación complementa los 20/20 casos de correspondencia registrados, sin 
 
 La prueba respalda el recorrido funcional de los cuatro gestos en las sesiones registradas y muestra que el tiempo de respuesta es un factor relevante para la interacción. Los dos grupos completaron las funciones, con mayor espera en P4. La aplicación debe comunicar la carga y mantener el progreso visible; no puede prometer el mismo tiempo en cualquier PC.
 
-El ensayo no mide precisión por fotograma, estabilidad entre repeticiones, calidad artística, usabilidad o tolerancia ante fallos. La muestra es pequeña y los grupos son desiguales. La ampliación de participantes y condiciones, el registro del backend efectivo y la incorporación de evidencias permitirán fortalecer estas conclusiones.
+El ensayo no mide precisión por fotograma, estabilidad entre repeticiones, calidad artística, usabilidad o tolerancia ante fallos. La muestra es pequeña y los grupos son desiguales. La ampliación de participantes y condiciones, el registro del backend efectivo y la vinculación de las evidencias a cada intento permitirán fortalecer estas conclusiones.
 
 ## Resultados históricos registrados
 

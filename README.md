@@ -48,6 +48,13 @@ La primera acuarela incluye la carga del modelo además de la generación de la 
 | Conclusiones, limitaciones y mejoras | [Conclusiones](docs/conclusiones.md) |
 | Cobertura de los requisitos de la imagen | [Lista de entrega](docs/entrega.md) |
 
+## Video demostrativo y evidencias
+
+- [Video demostrativo](https://drive.google.com/drive/folders/1QnlKGPzSLxmXWYSKPR-9ky_ccc3YyCzO?usp=drive_link): carpeta con la demostración aportada por el equipo.
+- [Evidencias visuales de BloomFace](https://drive.google.com/drive/folders/1roSEUYetW253kGcOQmd0Q32GxQD35YFs?usp=sharing): carpeta con el material de evidencia aportado por el equipo.
+
+El video y las evidencias complementan el registro de pruebas y permiten consultar el funcionamiento del proyecto. El acceso depende de los permisos de las carpetas de Drive.
+
 ## Resultados y evaluación
 
 Se realizó una prueba exploratoria con **cinco participantes (P1–P5) y 20 intentos**, uno por cada gesto y persona. Según el registro del equipo, los 20 intentos confirmaron el gesto solicitado, mostraron una imagen y correspondieron a la etapa floral esperada.
@@ -82,7 +89,7 @@ Los 20 intentos registrados respaldan el funcionamiento del recorrido gesto–ge
 - Los grupos son desiguales: 16 intentos con GPU dedicada y cuatro en P4, con participantes distintos y sin especificaciones completas del equipo.
 - Falta confirmar el backend efectivo de P4 y completar las condiciones de iluminación, encuadre y hardware.
 - La medición temporal de J18 necesita corrección; las marcas de primera carga deben conservarse y verificarse por sesión. El promedio conjunto de CPU y GPU no representa la espera de un equipo concreto.
-- La correspondencia de etapas fue registrada por el equipo; no mide por sí sola calidad artística, usabilidad o respuesta ante fallos. Los enlaces a evidencias audiovisuales de estos intentos están pendientes.
+- La correspondencia de etapas fue registrada por el equipo; no mide por sí sola calidad artística, usabilidad o respuesta ante fallos. El video y las evidencias están enlazados arriba; queda pendiente asociar cada intento con su archivo o momento correspondiente en el registro de pruebas.
 
 - El equipo identificó una oportunidad de mejora visual en las imágenes de boca abierta. Se propone revisar sus guías y descripciones, y comparar varias generaciones; la causa de esa apariencia aún no está determinada.
 

@@ -6,7 +6,14 @@ La versión utiliza la marca BloomFace, Agrandir Regular/TextBold, superficies c
 
 Las siguientes capturas se renderizan con Qt a partir del código de esta copia, sin abrir la webcam. Los estados de cámara, carga y resultado utilizan señales o datos suministrados para la evidencia; no constituyen un ensayo con participantes.
 
-### Bienvenida
+### Material audiovisual del equipo
+
+- [Video demostrativo](https://drive.google.com/drive/folders/1QnlKGPzSLxmXWYSKPR-9ky_ccc3YyCzO?usp=drive_link): carpeta con la demostración aportada por el equipo.
+- [Evidencias visuales de BloomFace](https://drive.google.com/drive/folders/1roSEUYetW253kGcOQmd0Q32GxQD35YFs?usp=sharing): carpeta con el material de evidencia aportado por el equipo.
+
+El material externo complementa las capturas documentales incluidas a continuación. Estas capturas conservan su identificación como estados controlados; no se presentan como fotografías de las pruebas con participantes.
+
+## Bienvenida
 
 ![Bienvenida](evidencias/01_bienvenida.png)
 

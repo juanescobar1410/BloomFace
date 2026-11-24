@@ -9,7 +9,7 @@ La lista se basa en la imagen «Documentación del proyecto» proporcionada por 
 | Metodología: etapas, técnicas y modelos | `metodologia.md` | Documentado; antecedentes diferenciados |
 | Implementación: código y explicación de funciones | Tabla de módulos y metodología | Código conservado y descrito |
 | Datos: visualización, descripción y acceso | `datos.md`, figura de guías, enlaces oficiales | Recursos actuales identificados; fotos históricas no incluidas |
-| Interfaz: prototipo, funciones, instrucciones y evidencias | `interfaz.md`, capturas Qt | Evidencias sin webcam, identificadas como estados controlados |
+| Interfaz: prototipo, funciones, instrucciones y evidencias | `interfaz.md`, capturas Qt y carpetas externas de video y evidencias | Material audiovisual del equipo enlazado; capturas Qt identificadas como estados controlados |
 | Resultados: pruebas, métricas, ejemplos y análisis | `resultados.md`, `VALIDACION.md` | Resultados históricos atribuidos y verificación nueva separada |
 | Conclusiones y mejoras | `conclusiones.md` | Incluidas con límites de evaluación |
 | README principal e instrucciones | README e instalación | Arranque de código corregido; validación registrada aparte |
@@ -28,3 +28,8 @@ La [metodología](metodologia.md#técnicas-de-procesamiento-de-imágenes-y-visi�
 - Completar evaluación de gestos actuales si se quiere publicar una cifra de precisión.
 
 Los cambios revisados se integraron en la carpeta principal con autorización del usuario. Esta integración no publica cambios en GitHub ni crea un paquete portátil.
+
+## Material audiovisual de entrega
+
+- [Video demostrativo](https://drive.google.com/drive/folders/1QnlKGPzSLxmXWYSKPR-9ky_ccc3YyCzO?usp=drive_link): carpeta con la demostración aportada por el equipo.
+- [Evidencias visuales de BloomFace](https://drive.google.com/drive/folders/1roSEUYetW253kGcOQmd0Q32GxQD35YFs?usp=sharing): carpeta con el material de evidencia aportado por el equipo.
