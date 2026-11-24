@@ -19,6 +19,10 @@ El planteamiento se sitúa en Análisis de la Expresión Humana en el Arte y la 
 
 [Descripción](docs/proyecto.md), [referencias](docs/referencias.md), [arquitectura](docs/arquitectura.md), [metodología](docs/metodologia.md), [instalación](docs/instalacion.md), [datos](docs/datos.md), [resultados](docs/resultados.md), [revisión](docs/revision.md), [validación](docs/VALIDACION.md) y [bitácora histórica](docs/antecedentes/CONTEXTO_HISTORICO_2026-11-23.md).
 
+## Evaluación exploratoria registrada
+
+El equipo consignó 20 intentos con cinco participantes: 20/20 reconocimientos, imágenes y etapas correctas. Sin primera carga, el grupo GPU promedia 13,20 s (12 mediciones) y P4, registrado como CPU, 50,90 s (tres). La etiqueta del backend de P4 y el dato temporal J18 requieren revisión. El alcance y la fuente están en `docs/resultados.md`.
+
 ## Pendientes
 
-Prueba con participantes y webcam, evaluación del reconocedor actual y validación de un paquete portátil en otro Windows. La documentación registra resultados anteriores con su procedencia; no les atribuye precisión al modelo actual. La integración conserva el historial Git. No se ha hecho commit ni push. No se implementó el modo de evaluación propuesto posteriormente en el chat.
+Ampliar la evaluación exploratoria del reconocedor con más personas y condiciones, completar las evidencias y especificaciones de los ensayos, y validar un paquete portátil en otro Windows. La documentación registra resultados anteriores con su procedencia; no les atribuye precisión al modelo actual. La integración conserva el historial Git. No se ha hecho commit ni push. No se implementó el modo de evaluación propuesto posteriormente en el chat.

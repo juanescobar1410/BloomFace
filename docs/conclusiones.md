@@ -8,24 +8,26 @@ La implementación articula procesamiento de imágenes, análisis facial, clasif
 
 ## Interpretación de los resultados
 
-Las pruebas funcionales disponibles respaldan la lógica de los tres segundos, la selección de solicitudes, la interacción por rondas y la conservación de la composición. La revisión también comprobó el arranque desde el notebook y una solicitud real de reposo en CPU, que produjo una imagen de 384 × 384. Esa evidencia confirma la conexión entre el controlador y el generador para el caso ensayado; su protocolo y tiempos se presentan en [resultados](resultados.md).
+En la evaluación exploratoria del equipo participaron cinco personas y se registraron 20 intentos. En todos se confirmó el gesto solicitado, se mostró una imagen y se anotó la etapa floral esperada. Estos resultados respaldan el recorrido gesto–generación–etapa floral en las condiciones ensayadas y los objetivos de captura, generación e integración. El 100 % corresponde a esos 20 intentos, no a una garantía de precisión en otros usuarios o contextos.
 
-La separación de procesos permite coordinar cámara, reconocimiento e interfaz mientras el generador realiza una tarea costosa. El respaldo en CPU ofrece una alternativa cuando DirectML no puede completar el trabajo. Las diferencias de resolución y tipo numérico entre perfiles, junto con la carga inicial del modelo, deben considerarse al interpretar los tiempos y comparar equipos.
+Los tiempos sin primera carga promediaron 13,20 s en 12 mediciones anotadas con GPU dedicada y 50,90 s en tres mediciones de P4, registrado como CPU. La relación de 3,86 entre promedios describe una mayor espera en P4; no demuestra una diferencia causada únicamente por el dispositivo. La expresión «CPU de gráficos integrados» debe aclararse y faltan especificaciones de hardware. La primera carga se analiza aparte; el dato de P5–ceño está almacenado como fecha y no permite publicar un promedio inicial válido. Las fuentes y cálculos se presentan en [resultados](resultados.md#evaluación-exploratoria-con-cinco-participantes).
 
-La evaluación disponible todavía no establece la precisión del reconocedor actual ni la calidad de todas las etapas con personas y sesiones reservadas. Tampoco permite generalizar la latencia de una solicitud a cualquier PC. Las mediciones de CNN y LibreFace permanecen asociadas a sus experimentos históricos.
+Las pruebas automatizadas y las comprobaciones técnicas complementan el registro de participantes: cubren confirmación temporal, rondas, recuperación y conexión entre controlador y generador. La separación de procesos permite coordinar captura e interfaz durante una tarea costosa. El respaldo CPU amplía las opciones de ejecución, con una espera que debe comunicarse mediante indicaciones de carga y progreso.
+
+La muestra no establece precisión general del reconocedor, calidad artística de todas las imágenes ni estabilidad entre repeticiones. Las mediciones de CNN y LibreFace permanecen asociadas a sus experimentos históricos y no se combinan con los 20 intentos de la versión actual.
 
 ## Limitaciones
 
-- Los umbrales de decisión necesitan evaluación con personas, sesiones y condiciones de captura diferentes. El habla y las combinaciones de movimientos pueden producir otra clase o una abstención.
+- La prueba incluye cinco personas y una repetición por gesto; los grupos son desiguales (16 intentos con GPU dedicada y cuatro en P4). Los umbrales de decisión necesitan evaluación con más personas, sesiones y condiciones de captura diferentes. El habla y las combinaciones de movimientos pueden producir otra clase o una abstención.
 - La referencia de reposo depende de la persona y de las condiciones en que se toma. Un encuadre que no incluya cejas y boca reduce la información disponible para la interacción.
 - Las acuarelas se generan con semillas variables. La correspondencia entre etapas, la coherencia estilística y su aceptación visual requieren una evaluación específica; no se garantiza continuidad exacta entre imágenes.
 - La difusión necesita memoria y recursos locales. El respaldo CPU amplía las opciones de ejecución, pero puede incrementar la espera.
-- Las capturas documentales de la interfaz representan estados controlados. La prueba CPU real usa un gesto suministrado al controlador, sin webcam; el recorrido con participantes debe verificarse en los equipos de entrega.
+- Las capturas documentales previas representan estados controlados y la prueba técnica CPU suministra el gesto al controlador. Los 20 intentos con participantes se documentan mediante registro manual; sus enlaces audiovisuales y las condiciones de prueba están pendientes. Deben confirmarse el backend de P4 y las marcas de primera carga, y corregirse el tiempo guardado como fecha en J18.
 - La entrega de un ejecutable requiere construir o localizar el paquete correcto y probarlo en otro Windows sin el entorno de desarrollo.
 
 ## Mejoras prioritarias
 
-1. Evaluar los cuatro gestos, el habla, las mezclas y la ausencia de rostro con personas y sesiones reservadas, mediante matriz de confusión, recall, F1 macro y exactitud que contabilice los rechazos.
+1. Ampliar la prueba de los cuatro gestos e incluir el habla, las mezclas y la ausencia de rostro con personas y sesiones reservadas, mediante matriz de confusión, recall, F1 macro y exactitud que contabilice los rechazos.
 2. Medir por separado carga, inferencia facial, confirmación, generación y tiempo total hasta la imagen visible, registrando hardware, memoria y condiciones de prueba.
 3. Registrar etapa, semilla, resolución, reintentos y aceptación por solicitud para analizar la diferenciación entre flores y su coherencia visual.
 4. Revisar la experiencia con participantes para determinar si el encuadre, la indicación de progreso y la espera permiten comprender la relación entre gesto y resultado.
